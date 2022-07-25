@@ -45,9 +45,9 @@ func run(ctx context.Context) error {
 			return errors.Wrap(err, "indent")
 		}
 		color.New(color.FgGreen).Println(out.String())
+	case *oas.GetPetByIdNotFound:
+		return errors.New("not found")
 	}
-
-	// Print pet details.
 
 	return nil
 }
