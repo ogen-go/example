@@ -42,6 +42,9 @@ func main() {
 			oas.WithTracerProvider(m.TracerProvider()),
 			oas.WithMeterProvider(m.MeterProvider()),
 		)
+		if err != nil {
+			return errors.Wrap(err, "server init")
+		}
 		httpServer := http.Server{
 			Addr:    arg.Addr,
 			Handler: oasServer,
