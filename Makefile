@@ -10,9 +10,6 @@ generate:
 	go generate ./...
 .PHONY: generate
 
-build:
-	CGO_ENABLED=0 go build ./cmd/bot
-
 check_generated: generate
 	git diff --exit-code
 .PHONY: check_generated
