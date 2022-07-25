@@ -19,11 +19,15 @@ $ curl localhost:9090
 Service is up and running.
 
 Resource:
+  service.name                     api
+  service.namespace                example
+  telemetry.sdk.language           go
+  telemetry.sdk.name               opentelemetry
+  telemetry.sdk.version            1.8.0
 
 Available debug endpoints:
 /metrics             - prometheus metrics
 /debug/pprof         - exported pprof
-
 ```
 
 ## Use client
@@ -35,6 +39,15 @@ pet: {
   "status": "available"
 }
 ```
+
+## Environmental variables
+
+| Name                              | Value                       | Description                                  |
+|-----------------------------------|-----------------------------|----------------------------------------------|
+| `OTEL_SERVICE_NAME`               | `api`                       | OpenTelemetry service name                   |
+| `OTEL_RESOURCE_ATTRIBUTES`        | `service.namespace=example` | Additional OpenTelemetry resource attributes |
+| `OTEL_EXPORTER_JAEGER_AGENT_HOST` | `localhost`                 | Jaeger host to use                           |
+| `OTEL_EXPORTER_JAEGER_AGENT_PORT` | `6831`                      | Jaeger port to use (UDP)                     |
 
 ## TODO
 

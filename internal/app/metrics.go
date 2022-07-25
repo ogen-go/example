@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/pprof"
+	"os"
 	"strings"
 
 	"github.com/go-faster/errors"
@@ -41,9 +42,8 @@ type Metrics struct {
 
 // Config for metrics.
 type Config struct {
-	Name      string // app name
-	Namespace string // app namespace
-	Addr      string // address for metrics server
+	Addr string // address for metrics server, optional
+	Name string // default name of the service, optional
 }
 
 func newPrometheus(config prometheus.Config, options ...controller.Option) (*prometheus.Exporter, error) {
@@ -139,10 +139,22 @@ func (m *Metrics) Run(ctx context.Context) error {
 
 // NewMetrics returns new Metrics.
 func NewMetrics(log *zap.Logger, cfg Config) (*Metrics, error) {
-	res, err := Resource(context.Background(), cfg.Namespace, cfg.Name)
-	if err != nil {
-		return nil, errors.Wrap(err, "resource")
+	if cfg.Addr == "" {
+		cfg.Addr = os.Getenv("METRICS_ADDR")
 	}
+	if cfg.Addr == "" {
+		cfg.Addr = "127.0.0.1:9090"
+	}
+
+	// The Resource uses environmental variables for default resource attributes:
+	//
+	// - OTEL_RESOURCE_ATTRIBUTES
+	// - OTEL_SERVICE_NAME
+	if _, ok := os.LookupEnv("OTEL_SERVICE_NAME"); !ok && cfg.Name != "" {
+		// Default service name to provided name.
+		_ = os.Setenv("OTEL_SERVICE_NAME", cfg.Name)
+	}
+	res := resource.Default()
 
 	registry := promClient.NewPedanticRegistry()
 	// Register legacy prometheus-only runtime metrics.
@@ -150,9 +162,15 @@ func NewMetrics(log *zap.Logger, cfg Config) (*Metrics, error) {
 		collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}),
 		collectors.NewGoCollector(),
 		collectors.NewBuildInfoCollector(),
-		prommod.NewCollector(cfg.Name),
+		prommod.NewCollector("server"),
 	)
 
+	// The jaeger.WithAgentEndpoint uses environment variables to configure endpoints:
+	//
+	// - OTEL_EXPORTER_JAEGER_AGENT_HOST is used for the agent address host
+	// - OTEL_EXPORTER_JAEGER_AGENT_PORT is used for the agent address port
+	//
+	// See jaeger.WithAgentEndpoint docs for more info.
 	jaegerExporter, err := jaeger.New(jaeger.WithAgentEndpoint())
 	if err != nil {
 		return nil, errors.Wrap(err, "jaeger")
@@ -178,6 +196,7 @@ func NewMetrics(log *zap.Logger, cfg Config) (*Metrics, error) {
 	)
 	mux := http.NewServeMux()
 	m := &Metrics{
+		resource:       res,
 		prometheus:     promExporter,
 		jaeger:         jaegerExporter,
 		tracerProvider: tracerProvider,

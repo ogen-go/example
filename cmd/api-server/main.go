@@ -30,9 +30,8 @@ func main() {
 		)
 
 		m, err := app.NewMetrics(lg, app.Config{
-			Name:      "api",
-			Namespace: "example",
-			Addr:      arg.MetricsAddr,
+			Addr: arg.MetricsAddr,
+			Name: "api",
 		})
 		if err != nil {
 			return errors.Wrap(err, "metrics")
