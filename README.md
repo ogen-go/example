@@ -9,8 +9,10 @@ prometheus and jaeger.
 * Metrics boilerplate in [internal/app](./internal/app)
 
 ## Start server
-```go
-go run ./cmd/api-server
+```console
+$ OTEL_SERVICE_NAME=api OTEL_RESOURCE_ATTRIBUTES="service.namespace=example" go run ./cmd/api-server
+{"level":"info","ts":1658763761.0027707,"caller":"api-server/main.go:27","msg":"Initializing","http.addr":"127.0.0.1:8080","metrics.addr":"127.0.0.1:9090"}
+{"level":"info","ts":1658763761.0033038,"caller":"app/metrics.go:224","msg":"Metrics initialized","otel.resource":"service.name=api,service.namespace=example,telemetry.sdk.language=go,telemetry.sdk.name=opentelemetry,telemetry.sdk.version=1.8.0","http.addr":"127.0.0.1:9090"}
 ```
 
 ## Check metrics
