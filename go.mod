@@ -5,8 +5,8 @@ go 1.18
 require (
 	github.com/fatih/color v1.13.0
 	github.com/go-faster/errors v0.6.1
-	github.com/go-faster/jx v0.38.1
-	github.com/ogen-go/ogen v0.45.0
+	github.com/go-faster/jx v0.39.0
+	github.com/ogen-go/ogen v0.46.2
 	github.com/povilasv/prommod v0.0.12
 	github.com/prometheus/client_golang v1.12.2
 	go.opentelemetry.io/otel v1.9.0
@@ -24,7 +24,7 @@ require (
 require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
-	github.com/go-faster/yamlx v0.2.1 // indirect
+	github.com/go-faster/yamlx v0.3.2 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
@@ -39,9 +39,9 @@ require (
 	github.com/stretchr/objx v0.4.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
-	golang.org/x/net v0.0.0-20220622184535-263ec571b305 // indirect
-	golang.org/x/sys v0.0.0-20220622161953-175b2fd9d664 // indirect
+	golang.org/x/net v0.0.0-20220722155237-a158d28d115b // indirect
+	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
 	golang.org/x/text v0.3.7 // indirect
-	golang.org/x/tools v0.1.11 // indirect
+	golang.org/x/tools v0.1.12 // indirect
 	google.golang.org/protobuf v1.26.0 // indirect
 )
