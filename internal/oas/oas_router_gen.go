@@ -10,6 +10,10 @@ func (s *Server) notFound(w http.ResponseWriter, r *http.Request) {
 	s.cfg.NotFound(w, r)
 }
 
+func (s *Server) notAllowed(w http.ResponseWriter, r *http.Request, allowed string) {
+	s.cfg.MethodNotAllowed(w, r, allowed)
+}
+
 // ServeHTTP serves http request as defined by OpenAPI v3 specification,
 // calling handler that matches the path or returning not found error.
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -19,61 +23,10 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	args := [1]string{}
+
 	// Static code generated router with unwrapped path search.
-	switch r.Method {
-	case "DELETE":
-		if len(elem) == 0 {
-			break
-		}
-		switch elem[0] {
-		case '/': // Prefix: "/pet/"
-			if l := len("/pet/"); len(elem) >= l && elem[0:l] == "/pet/" {
-				elem = elem[l:]
-			} else {
-				break
-			}
-
-			// Param: "petId"
-			// Leaf parameter
-			args[0] = elem
-			elem = ""
-
-			if len(elem) == 0 {
-				// Leaf: DeletePet
-				s.handleDeletePetRequest([1]string{
-					args[0],
-				}, w, r)
-
-				return
-			}
-		}
-	case "GET":
-		if len(elem) == 0 {
-			break
-		}
-		switch elem[0] {
-		case '/': // Prefix: "/pet/"
-			if l := len("/pet/"); len(elem) >= l && elem[0:l] == "/pet/" {
-				elem = elem[l:]
-			} else {
-				break
-			}
-
-			// Param: "petId"
-			// Leaf parameter
-			args[0] = elem
-			elem = ""
-
-			if len(elem) == 0 {
-				// Leaf: GetPetById
-				s.handleGetPetByIdRequest([1]string{
-					args[0],
-				}, w, r)
-
-				return
-			}
-		}
-	case "POST":
+	switch {
+	default:
 		if len(elem) == 0 {
 			break
 		}
@@ -86,7 +39,12 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 
 			if len(elem) == 0 {
-				s.handleAddPetRequest([0]string{}, w, r)
+				switch r.Method {
+				case "POST":
+					s.handleAddPetRequest([0]string{}, w, r)
+				default:
+					s.notAllowed(w, r, "POST")
+				}
 
 				return
 			}
@@ -104,10 +62,23 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				elem = ""
 
 				if len(elem) == 0 {
-					// Leaf: UpdatePet
-					s.handleUpdatePetRequest([1]string{
-						args[0],
-					}, w, r)
+					// Leaf node.
+					switch r.Method {
+					case "DELETE":
+						s.handleDeletePetRequest([1]string{
+							args[0],
+						}, w, r)
+					case "GET":
+						s.handleGetPetByIdRequest([1]string{
+							args[0],
+						}, w, r)
+					case "POST":
+						s.handleUpdatePetRequest([1]string{
+							args[0],
+						}, w, r)
+					default:
+						s.notAllowed(w, r, "DELETE,GET,POST")
+					}
 
 					return
 				}
@@ -119,14 +90,22 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // Route is route object.
 type Route struct {
-	name  string
-	count int
-	args  [1]string
+	name        string
+	operationID string
+	count       int
+	args        [1]string
+}
+
+// Name returns ogen operation name.
+//
+// It is guaranteed to be unique and not empty.
+func (r Route) Name() string {
+	return r.name
 }
 
 // OperationID returns OpenAPI operationId.
 func (r Route) OperationID() string {
-	return r.name
+	return r.operationID
 }
 
 // Args returns parsed arguments.
@@ -146,58 +125,8 @@ func (s *Server) FindRoute(method, path string) (r Route, _ bool) {
 	}
 
 	// Static code generated router with unwrapped path search.
-	switch method {
-	case "DELETE":
-		if len(elem) == 0 {
-			break
-		}
-		switch elem[0] {
-		case '/': // Prefix: "/pet/"
-			if l := len("/pet/"); len(elem) >= l && elem[0:l] == "/pet/" {
-				elem = elem[l:]
-			} else {
-				break
-			}
-
-			// Param: "petId"
-			// Leaf parameter
-			args[0] = elem
-			elem = ""
-
-			if len(elem) == 0 {
-				// Leaf: DeletePet
-				r.name = "DeletePet"
-				r.args = args
-				r.count = 1
-				return r, true
-			}
-		}
-	case "GET":
-		if len(elem) == 0 {
-			break
-		}
-		switch elem[0] {
-		case '/': // Prefix: "/pet/"
-			if l := len("/pet/"); len(elem) >= l && elem[0:l] == "/pet/" {
-				elem = elem[l:]
-			} else {
-				break
-			}
-
-			// Param: "petId"
-			// Leaf parameter
-			args[0] = elem
-			elem = ""
-
-			if len(elem) == 0 {
-				// Leaf: GetPetById
-				r.name = "GetPetById"
-				r.args = args
-				r.count = 1
-				return r, true
-			}
-		}
-	case "POST":
+	switch {
+	default:
 		if len(elem) == 0 {
 			break
 		}
@@ -210,10 +139,16 @@ func (s *Server) FindRoute(method, path string) (r Route, _ bool) {
 			}
 
 			if len(elem) == 0 {
-				r.name = "AddPet"
-				r.args = args
-				r.count = 0
-				return r, true
+				switch method {
+				case "POST":
+					r.name = "AddPet"
+					r.operationID = "addPet"
+					r.args = args
+					r.count = 0
+					return r, true
+				default:
+					return
+				}
 			}
 			switch elem[0] {
 			case '/': // Prefix: "/"
@@ -229,11 +164,31 @@ func (s *Server) FindRoute(method, path string) (r Route, _ bool) {
 				elem = ""
 
 				if len(elem) == 0 {
-					// Leaf: UpdatePet
-					r.name = "UpdatePet"
-					r.args = args
-					r.count = 1
-					return r, true
+					switch method {
+					case "DELETE":
+						// Leaf: DeletePet
+						r.name = "DeletePet"
+						r.operationID = "deletePet"
+						r.args = args
+						r.count = 1
+						return r, true
+					case "GET":
+						// Leaf: GetPetById
+						r.name = "GetPetById"
+						r.operationID = "getPetById"
+						r.args = args
+						r.count = 1
+						return r, true
+					case "POST":
+						// Leaf: UpdatePet
+						r.name = "UpdatePet"
+						r.operationID = "updatePet"
+						r.args = args
+						r.count = 1
+						return r, true
+					default:
+						return
+					}
 				}
 			}
 		}
