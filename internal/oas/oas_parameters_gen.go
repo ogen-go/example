@@ -11,6 +11,7 @@ import (
 	"github.com/ogen-go/ogen/uri"
 )
 
+// DeletePetParams is parameters of deletePet operation.
 type DeletePetParams struct {
 	// Pet id to delete.
 	PetId int64
@@ -56,6 +57,7 @@ func decodeDeletePetParams(args [1]string, r *http.Request) (params DeletePetPar
 	return params, nil
 }
 
+// GetPetByIdParams is parameters of getPetById operation.
 type GetPetByIdParams struct {
 	// ID of pet to return.
 	PetId int64
@@ -101,6 +103,7 @@ func decodeGetPetByIdParams(args [1]string, r *http.Request) (params GetPetByIdP
 	return params, nil
 }
 
+// UpdatePetParams is parameters of updatePet operation.
 type UpdatePetParams struct {
 	// ID of pet that needs to be updated.
 	PetId int64

@@ -16,10 +16,9 @@ import (
 	"github.com/ogen-go/ogen/otelogen"
 )
 
-// Allocate option closure once.
-var serverSpanKind = trace.WithSpanKind(trace.SpanKindServer)
-
 // handleAddPetRequest handles addPet operation.
+//
+// Add a new pet to the store.
 //
 // POST /pet
 func (s *Server) handleAddPetRequest(args [0]string, w http.ResponseWriter, r *http.Request) {
@@ -118,6 +117,8 @@ func (s *Server) handleAddPetRequest(args [0]string, w http.ResponseWriter, r *h
 
 // handleDeletePetRequest handles deletePet operation.
 //
+// Deletes a pet.
+//
 // DELETE /pet/{petId}
 func (s *Server) handleDeletePetRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
@@ -212,6 +213,8 @@ func (s *Server) handleDeletePetRequest(args [1]string, w http.ResponseWriter, r
 
 // handleGetPetByIdRequest handles getPetById operation.
 //
+// Returns a single pet.
+//
 // GET /pet/{petId}
 func (s *Server) handleGetPetByIdRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
@@ -305,6 +308,8 @@ func (s *Server) handleGetPetByIdRequest(args [1]string, w http.ResponseWriter, 
 }
 
 // handleUpdatePetRequest handles updatePet operation.
+//
+// Updates a pet in the store.
 //
 // POST /pet/{petId}
 func (s *Server) handleUpdatePetRequest(args [1]string, w http.ResponseWriter, r *http.Request) {

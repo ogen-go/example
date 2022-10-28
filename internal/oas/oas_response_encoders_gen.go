@@ -24,12 +24,14 @@ func encodeAddPetResponse(response Pet, w http.ResponseWriter, span trace.Span) 
 	return nil
 
 }
+
 func encodeDeletePetResponse(response DeletePetOK, w http.ResponseWriter, span trace.Span) error {
 	w.WriteHeader(200)
 	span.SetStatus(codes.Ok, http.StatusText(200))
 	return nil
 
 }
+
 func encodeGetPetByIdResponse(response GetPetByIdRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
 	case *Pet:
@@ -53,6 +55,7 @@ func encodeGetPetByIdResponse(response GetPetByIdRes, w http.ResponseWriter, spa
 		return errors.Errorf("unexpected response type: %T", response)
 	}
 }
+
 func encodeUpdatePetResponse(response UpdatePetOK, w http.ResponseWriter, span trace.Span) error {
 	w.WriteHeader(200)
 	span.SetStatus(codes.Ok, http.StatusText(200))
