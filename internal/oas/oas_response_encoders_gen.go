@@ -50,7 +50,7 @@ func encodeGetPetByIdResponse(response GetPetByIdRes, w http.ResponseWriter, spa
 		return nil
 
 	default:
-		return errors.Errorf("/pet/{petId}"+`: unexpected response type: %T`, response)
+		return errors.Errorf("unexpected response type: %T", response)
 	}
 }
 func encodeUpdatePetResponse(response UpdatePetOK, w http.ResponseWriter, span trace.Span) error {

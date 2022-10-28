@@ -9,12 +9,11 @@ import (
 
 	"github.com/go-faster/errors"
 	"github.com/go-faster/jx"
-	"go.opentelemetry.io/otel/trace"
 
 	"github.com/ogen-go/ogen/validate"
 )
 
-func decodeAddPetResponse(resp *http.Response, span trace.Span) (res Pet, err error) {
+func decodeAddPetResponse(resp *http.Response) (res Pet, err error) {
 	switch resp.StatusCode {
 	case 200:
 		// Code 200.
@@ -37,7 +36,10 @@ func decodeAddPetResponse(resp *http.Response, span trace.Span) (res Pet, err er
 				}
 				return nil
 			}(); err != nil {
-				return res, err
+				return res, errors.Wrap(err, "decode \"application/json\"")
+			}
+			if err := d.Skip(); err != io.EOF {
+				return res, errors.New("unexpected trailing data")
 			}
 			return response, nil
 		default:
@@ -47,7 +49,7 @@ func decodeAddPetResponse(resp *http.Response, span trace.Span) (res Pet, err er
 	return res, validate.UnexpectedStatusCode(resp.StatusCode)
 }
 
-func decodeDeletePetResponse(resp *http.Response, span trace.Span) (res DeletePetOK, err error) {
+func decodeDeletePetResponse(resp *http.Response) (res DeletePetOK, err error) {
 	switch resp.StatusCode {
 	case 200:
 		// Code 200.
@@ -56,7 +58,7 @@ func decodeDeletePetResponse(resp *http.Response, span trace.Span) (res DeletePe
 	return res, validate.UnexpectedStatusCode(resp.StatusCode)
 }
 
-func decodeGetPetByIdResponse(resp *http.Response, span trace.Span) (res GetPetByIdRes, err error) {
+func decodeGetPetByIdResponse(resp *http.Response) (res GetPetByIdRes, err error) {
 	switch resp.StatusCode {
 	case 200:
 		// Code 200.
@@ -79,7 +81,10 @@ func decodeGetPetByIdResponse(resp *http.Response, span trace.Span) (res GetPetB
 				}
 				return nil
 			}(); err != nil {
-				return res, err
+				return res, errors.Wrap(err, "decode \"application/json\"")
+			}
+			if err := d.Skip(); err != io.EOF {
+				return res, errors.New("unexpected trailing data")
 			}
 			return &response, nil
 		default:
@@ -92,7 +97,7 @@ func decodeGetPetByIdResponse(resp *http.Response, span trace.Span) (res GetPetB
 	return res, validate.UnexpectedStatusCode(resp.StatusCode)
 }
 
-func decodeUpdatePetResponse(resp *http.Response, span trace.Span) (res UpdatePetOK, err error) {
+func decodeUpdatePetResponse(resp *http.Response) (res UpdatePetOK, err error) {
 	switch resp.StatusCode {
 	case 200:
 		// Code 200.

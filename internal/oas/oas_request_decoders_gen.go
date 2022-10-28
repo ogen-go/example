@@ -9,22 +9,23 @@ import (
 
 	"github.com/go-faster/errors"
 	"github.com/go-faster/jx"
-	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/multierr"
 
 	"github.com/ogen-go/ogen/validate"
 )
 
-func (s *Server) decodeAddPetRequest(r *http.Request, span trace.Span) (
+func (s *Server) decodeAddPetRequest(r *http.Request) (
 	req Pet,
 	close func() error,
 	rerr error,
 ) {
-	var closers []io.Closer
+	var closers []func() error
 	close = func() error {
 		var merr error
-		for _, c := range closers {
-			merr = multierr.Append(merr, c.Close())
+		// Close in reverse order, to match defer behavior.
+		for i := len(closers) - 1; i >= 0; i-- {
+			c := closers[i]
+			merr = multierr.Append(merr, c())
 		}
 		return merr
 	}
@@ -33,13 +34,12 @@ func (s *Server) decodeAddPetRequest(r *http.Request, span trace.Span) (
 			rerr = multierr.Append(rerr, close())
 		}
 	}()
-
 	ct, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
 	if err != nil {
 		return req, close, errors.Wrap(err, "parse media type")
 	}
-	switch ct {
-	case "application/json":
+	switch {
+	case ct == "application/json":
 		if r.ContentLength == 0 {
 			return req, close, validate.ErrBodyRequired
 		}
@@ -62,6 +62,9 @@ func (s *Server) decodeAddPetRequest(r *http.Request, span trace.Span) (
 			return nil
 		}(); err != nil {
 			return req, close, errors.Wrap(err, "decode \"application/json\"")
+		}
+		if err := d.Skip(); err != io.EOF {
+			return req, close, errors.New("unexpected trailing data")
 		}
 		if err := func() error {
 			if err := request.Validate(); err != nil {

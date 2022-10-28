@@ -150,10 +150,50 @@ func (o OptString) Or(d string) string {
 
 // Ref: #/components/schemas/Pet
 type Pet struct {
-	ID        OptInt64     "json:\"id\""
-	Name      string       "json:\"name\""
-	PhotoUrls []string     "json:\"photoUrls\""
-	Status    OptPetStatus "json:\"status\""
+	ID        OptInt64     `json:"id"`
+	Name      string       `json:"name"`
+	PhotoUrls []string     `json:"photoUrls"`
+	Status    OptPetStatus `json:"status"`
+}
+
+// GetID returns the value of ID.
+func (s Pet) GetID() OptInt64 {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s Pet) GetName() string {
+	return s.Name
+}
+
+// GetPhotoUrls returns the value of PhotoUrls.
+func (s Pet) GetPhotoUrls() []string {
+	return s.PhotoUrls
+}
+
+// GetStatus returns the value of Status.
+func (s Pet) GetStatus() OptPetStatus {
+	return s.Status
+}
+
+// SetID sets the value of ID.
+func (s *Pet) SetID(val OptInt64) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *Pet) SetName(val string) {
+	s.Name = val
+}
+
+// SetPhotoUrls sets the value of PhotoUrls.
+func (s *Pet) SetPhotoUrls(val []string) {
+	s.PhotoUrls = val
+}
+
+// SetStatus sets the value of Status.
+func (s *Pet) SetStatus(val OptPetStatus) {
+	s.Status = val
 }
 
 func (*Pet) getPetByIdRes() {}

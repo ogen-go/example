@@ -16,6 +16,11 @@ type DeletePetParams struct {
 	PetId int64
 }
 
+func unpackDeletePetParams(packed map[string]any) (params DeletePetParams) {
+	params.PetId = packed["petId"].(int64)
+	return params
+}
+
 func decodeDeletePetParams(args [1]string, r *http.Request) (params DeletePetParams, _ error) {
 	// Decode path: petId.
 	{
@@ -42,7 +47,7 @@ func decodeDeletePetParams(args [1]string, r *http.Request) (params DeletePetPar
 				params.PetId = c
 				return nil
 			}(); err != nil {
-				return params, err
+				return params, errors.Wrap(err, "path: petId: parse")
 			}
 		} else {
 			return params, errors.New("path: petId: not specified")
@@ -54,6 +59,11 @@ func decodeDeletePetParams(args [1]string, r *http.Request) (params DeletePetPar
 type GetPetByIdParams struct {
 	// ID of pet to return.
 	PetId int64
+}
+
+func unpackGetPetByIdParams(packed map[string]any) (params GetPetByIdParams) {
+	params.PetId = packed["petId"].(int64)
+	return params
 }
 
 func decodeGetPetByIdParams(args [1]string, r *http.Request) (params GetPetByIdParams, _ error) {
@@ -82,7 +92,7 @@ func decodeGetPetByIdParams(args [1]string, r *http.Request) (params GetPetByIdP
 				params.PetId = c
 				return nil
 			}(); err != nil {
-				return params, err
+				return params, errors.Wrap(err, "path: petId: parse")
 			}
 		} else {
 			return params, errors.New("path: petId: not specified")
@@ -98,6 +108,17 @@ type UpdatePetParams struct {
 	Name OptString
 	// Status of pet that needs to be updated.
 	Status OptPetStatus
+}
+
+func unpackUpdatePetParams(packed map[string]any) (params UpdatePetParams) {
+	params.PetId = packed["petId"].(int64)
+	if v, ok := packed["name"]; ok {
+		params.Name = v.(OptString)
+	}
+	if v, ok := packed["status"]; ok {
+		params.Status = v.(OptPetStatus)
+	}
+	return params
 }
 
 func decodeUpdatePetParams(args [1]string, r *http.Request) (params UpdatePetParams, _ error) {
@@ -127,7 +148,7 @@ func decodeUpdatePetParams(args [1]string, r *http.Request) (params UpdatePetPar
 				params.PetId = c
 				return nil
 			}(); err != nil {
-				return params, err
+				return params, errors.Wrap(err, "path: petId: parse")
 			}
 		} else {
 			return params, errors.New("path: petId: not specified")

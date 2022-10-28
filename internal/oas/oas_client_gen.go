@@ -19,6 +19,13 @@ import (
 	"github.com/ogen-go/ogen/uri"
 )
 
+var _ Handler = struct {
+	*Client
+}{}
+
+// Allocate option closure once.
+var clientSpanKind = trace.WithSpanKind(trace.SpanKindClient)
+
 // Client implements OAS client.
 type Client struct {
 	serverURL *url.URL
@@ -48,6 +55,21 @@ func NewClient(serverURL string, opts ...Option) (*Client, error) {
 		return nil, err
 	}
 	return c, nil
+}
+
+type serverURLKey struct{}
+
+// WithServerURL sets context key to override server URL.
+func WithServerURL(ctx context.Context, u *url.URL) context.Context {
+	return context.WithValue(ctx, serverURLKey{}, u)
+}
+
+func (c *Client) requestURL(ctx context.Context) *url.URL {
+	u, ok := ctx.Value(serverURLKey{}).(*url.URL)
+	if !ok {
+		return c.serverURL
+	}
+	return u
 }
 
 // AddPet invokes addPet operation.
@@ -82,7 +104,7 @@ func (c *Client) AddPet(ctx context.Context, request Pet) (res Pet, err error) {
 	// Start a span for this request.
 	ctx, span := c.cfg.Tracer.Start(ctx, "AddPet",
 		trace.WithAttributes(otelAttrs...),
-		trace.WithSpanKind(trace.SpanKindClient),
+		clientSpanKind,
 	)
 	// Track stage for error reporting.
 	var stage string
@@ -96,11 +118,14 @@ func (c *Client) AddPet(ctx context.Context, request Pet) (res Pet, err error) {
 	}()
 
 	stage = "BuildURL"
-	u := uri.Clone(c.serverURL)
+	u := uri.Clone(c.requestURL(ctx))
 	u.Path += "/pet"
 
 	stage = "EncodeRequest"
-	r := ht.NewRequest(ctx, "POST", u, nil)
+	r, err := ht.NewRequest(ctx, "POST", u, nil)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
 	if err := encodeAddPetRequest(request, r); err != nil {
 		return res, errors.Wrap(err, "encode request")
 	}
@@ -113,7 +138,7 @@ func (c *Client) AddPet(ctx context.Context, request Pet) (res Pet, err error) {
 	defer resp.Body.Close()
 
 	stage = "DecodeResponse"
-	result, err := decodeAddPetResponse(resp, span)
+	result, err := decodeAddPetResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -144,7 +169,7 @@ func (c *Client) DeletePet(ctx context.Context, params DeletePetParams) (res Del
 	// Start a span for this request.
 	ctx, span := c.cfg.Tracer.Start(ctx, "DeletePet",
 		trace.WithAttributes(otelAttrs...),
-		trace.WithSpanKind(trace.SpanKindClient),
+		clientSpanKind,
 	)
 	// Track stage for error reporting.
 	var stage string
@@ -158,7 +183,7 @@ func (c *Client) DeletePet(ctx context.Context, params DeletePetParams) (res Del
 	}()
 
 	stage = "BuildURL"
-	u := uri.Clone(c.serverURL)
+	u := uri.Clone(c.requestURL(ctx))
 	u.Path += "/pet/"
 	{
 		// Encode "petId" parameter.
@@ -176,7 +201,10 @@ func (c *Client) DeletePet(ctx context.Context, params DeletePetParams) (res Del
 	}
 
 	stage = "EncodeRequest"
-	r := ht.NewRequest(ctx, "DELETE", u, nil)
+	r, err := ht.NewRequest(ctx, "DELETE", u, nil)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
 
 	stage = "SendRequest"
 	resp, err := c.cfg.Client.Do(r)
@@ -186,7 +214,7 @@ func (c *Client) DeletePet(ctx context.Context, params DeletePetParams) (res Del
 	defer resp.Body.Close()
 
 	stage = "DecodeResponse"
-	result, err := decodeDeletePetResponse(resp, span)
+	result, err := decodeDeletePetResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -217,7 +245,7 @@ func (c *Client) GetPetById(ctx context.Context, params GetPetByIdParams) (res G
 	// Start a span for this request.
 	ctx, span := c.cfg.Tracer.Start(ctx, "GetPetById",
 		trace.WithAttributes(otelAttrs...),
-		trace.WithSpanKind(trace.SpanKindClient),
+		clientSpanKind,
 	)
 	// Track stage for error reporting.
 	var stage string
@@ -231,7 +259,7 @@ func (c *Client) GetPetById(ctx context.Context, params GetPetByIdParams) (res G
 	}()
 
 	stage = "BuildURL"
-	u := uri.Clone(c.serverURL)
+	u := uri.Clone(c.requestURL(ctx))
 	u.Path += "/pet/"
 	{
 		// Encode "petId" parameter.
@@ -249,7 +277,10 @@ func (c *Client) GetPetById(ctx context.Context, params GetPetByIdParams) (res G
 	}
 
 	stage = "EncodeRequest"
-	r := ht.NewRequest(ctx, "GET", u, nil)
+	r, err := ht.NewRequest(ctx, "GET", u, nil)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
 
 	stage = "SendRequest"
 	resp, err := c.cfg.Client.Do(r)
@@ -259,7 +290,7 @@ func (c *Client) GetPetById(ctx context.Context, params GetPetByIdParams) (res G
 	defer resp.Body.Close()
 
 	stage = "DecodeResponse"
-	result, err := decodeGetPetByIdResponse(resp, span)
+	result, err := decodeGetPetByIdResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -290,7 +321,7 @@ func (c *Client) UpdatePet(ctx context.Context, params UpdatePetParams) (res Upd
 	// Start a span for this request.
 	ctx, span := c.cfg.Tracer.Start(ctx, "UpdatePet",
 		trace.WithAttributes(otelAttrs...),
-		trace.WithSpanKind(trace.SpanKindClient),
+		clientSpanKind,
 	)
 	// Track stage for error reporting.
 	var stage string
@@ -304,7 +335,7 @@ func (c *Client) UpdatePet(ctx context.Context, params UpdatePetParams) (res Upd
 	}()
 
 	stage = "BuildURL"
-	u := uri.Clone(c.serverURL)
+	u := uri.Clone(c.requestURL(ctx))
 	u.Path += "/pet/"
 	{
 		// Encode "petId" parameter.
@@ -360,7 +391,10 @@ func (c *Client) UpdatePet(ctx context.Context, params UpdatePetParams) (res Upd
 	u.RawQuery = q.Values().Encode()
 
 	stage = "EncodeRequest"
-	r := ht.NewRequest(ctx, "POST", u, nil)
+	r, err := ht.NewRequest(ctx, "POST", u, nil)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
 
 	stage = "SendRequest"
 	resp, err := c.cfg.Client.Do(r)
@@ -370,7 +404,7 @@ func (c *Client) UpdatePet(ctx context.Context, params UpdatePetParams) (res Upd
 	defer resp.Body.Close()
 
 	stage = "DecodeResponse"
-	result, err := decodeUpdatePetResponse(resp, span)
+	result, err := decodeUpdatePetResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
