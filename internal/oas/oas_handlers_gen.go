@@ -3,6 +3,7 @@
 package oas
 
 import (
+	"context"
 	"net/http"
 	"time"
 
@@ -10,11 +11,15 @@ import (
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
 
+	"github.com/ogen-go/ogen/middleware"
 	"github.com/ogen-go/ogen/ogenerrors"
 	"github.com/ogen-go/ogen/otelogen"
 )
 
-// HandleAddPetRequest handles addPet operation.
+// Allocate option closure once.
+var serverSpanKind = trace.WithSpanKind(trace.SpanKindServer)
+
+// handleAddPetRequest handles addPet operation.
 //
 // POST /pet
 func (s *Server) handleAddPetRequest(args [0]string, w http.ResponseWriter, r *http.Request) {
@@ -25,7 +30,7 @@ func (s *Server) handleAddPetRequest(args [0]string, w http.ResponseWriter, r *h
 	// Start a span for this request.
 	ctx, span := s.cfg.Tracer.Start(r.Context(), "AddPet",
 		trace.WithAttributes(otelAttrs...),
-		trace.WithSpanKind(trace.SpanKindServer),
+		serverSpanKind,
 	)
 	defer span.End()
 
@@ -51,7 +56,7 @@ func (s *Server) handleAddPetRequest(args [0]string, w http.ResponseWriter, r *h
 			ID:   "addPet",
 		}
 	)
-	request, close, err := s.decodeAddPetRequest(r, span)
+	request, close, err := s.decodeAddPetRequest(r)
 	if err != nil {
 		err = &ogenerrors.DecodeRequestError{
 			OperationContext: opErrContext,
@@ -61,9 +66,43 @@ func (s *Server) handleAddPetRequest(args [0]string, w http.ResponseWriter, r *h
 		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
 	}
-	defer close()
+	defer func() {
+		if err := close(); err != nil {
+			recordError("CloseRequest", err)
+		}
+	}()
 
-	response, err := s.h.AddPet(ctx, request)
+	var response Pet
+	if m := s.cfg.Middleware; m != nil {
+		mreq := middleware.Request{
+			Context:       ctx,
+			OperationName: "AddPet",
+			OperationID:   "addPet",
+			Body:          request,
+			Params:        map[string]any{},
+			Raw:           r,
+		}
+
+		type (
+			Request  = Pet
+			Params   = struct{}
+			Response = Pet
+		)
+		response, err = middleware.HookMiddleware[
+			Request,
+			Params,
+			Response,
+		](
+			m,
+			mreq,
+			nil,
+			func(ctx context.Context, request Request, params Params) (Response, error) {
+				return s.h.AddPet(ctx, request)
+			},
+		)
+	} else {
+		response, err = s.h.AddPet(ctx, request)
+	}
 	if err != nil {
 		recordError("Internal", err)
 		s.cfg.ErrorHandler(ctx, w, r, err)
@@ -77,7 +116,7 @@ func (s *Server) handleAddPetRequest(args [0]string, w http.ResponseWriter, r *h
 	}
 }
 
-// HandleDeletePetRequest handles deletePet operation.
+// handleDeletePetRequest handles deletePet operation.
 //
 // DELETE /pet/{petId}
 func (s *Server) handleDeletePetRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
@@ -88,7 +127,7 @@ func (s *Server) handleDeletePetRequest(args [1]string, w http.ResponseWriter, r
 	// Start a span for this request.
 	ctx, span := s.cfg.Tracer.Start(r.Context(), "DeletePet",
 		trace.WithAttributes(otelAttrs...),
-		trace.WithSpanKind(trace.SpanKindServer),
+		serverSpanKind,
 	)
 	defer span.End()
 
@@ -125,7 +164,39 @@ func (s *Server) handleDeletePetRequest(args [1]string, w http.ResponseWriter, r
 		return
 	}
 
-	response, err := s.h.DeletePet(ctx, params)
+	var response DeletePetOK
+	if m := s.cfg.Middleware; m != nil {
+		mreq := middleware.Request{
+			Context:       ctx,
+			OperationName: "DeletePet",
+			OperationID:   "deletePet",
+			Body:          nil,
+			Params: map[string]any{
+				"petId": params.PetId,
+			},
+			Raw: r,
+		}
+
+		type (
+			Request  = struct{}
+			Params   = DeletePetParams
+			Response = DeletePetOK
+		)
+		response, err = middleware.HookMiddleware[
+			Request,
+			Params,
+			Response,
+		](
+			m,
+			mreq,
+			unpackDeletePetParams,
+			func(ctx context.Context, request Request, params Params) (Response, error) {
+				return s.h.DeletePet(ctx, params)
+			},
+		)
+	} else {
+		response, err = s.h.DeletePet(ctx, params)
+	}
 	if err != nil {
 		recordError("Internal", err)
 		s.cfg.ErrorHandler(ctx, w, r, err)
@@ -139,7 +210,7 @@ func (s *Server) handleDeletePetRequest(args [1]string, w http.ResponseWriter, r
 	}
 }
 
-// HandleGetPetByIdRequest handles getPetById operation.
+// handleGetPetByIdRequest handles getPetById operation.
 //
 // GET /pet/{petId}
 func (s *Server) handleGetPetByIdRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
@@ -150,7 +221,7 @@ func (s *Server) handleGetPetByIdRequest(args [1]string, w http.ResponseWriter, 
 	// Start a span for this request.
 	ctx, span := s.cfg.Tracer.Start(r.Context(), "GetPetById",
 		trace.WithAttributes(otelAttrs...),
-		trace.WithSpanKind(trace.SpanKindServer),
+		serverSpanKind,
 	)
 	defer span.End()
 
@@ -187,7 +258,39 @@ func (s *Server) handleGetPetByIdRequest(args [1]string, w http.ResponseWriter, 
 		return
 	}
 
-	response, err := s.h.GetPetById(ctx, params)
+	var response GetPetByIdRes
+	if m := s.cfg.Middleware; m != nil {
+		mreq := middleware.Request{
+			Context:       ctx,
+			OperationName: "GetPetById",
+			OperationID:   "getPetById",
+			Body:          nil,
+			Params: map[string]any{
+				"petId": params.PetId,
+			},
+			Raw: r,
+		}
+
+		type (
+			Request  = struct{}
+			Params   = GetPetByIdParams
+			Response = GetPetByIdRes
+		)
+		response, err = middleware.HookMiddleware[
+			Request,
+			Params,
+			Response,
+		](
+			m,
+			mreq,
+			unpackGetPetByIdParams,
+			func(ctx context.Context, request Request, params Params) (Response, error) {
+				return s.h.GetPetById(ctx, params)
+			},
+		)
+	} else {
+		response, err = s.h.GetPetById(ctx, params)
+	}
 	if err != nil {
 		recordError("Internal", err)
 		s.cfg.ErrorHandler(ctx, w, r, err)
@@ -201,7 +304,7 @@ func (s *Server) handleGetPetByIdRequest(args [1]string, w http.ResponseWriter, 
 	}
 }
 
-// HandleUpdatePetRequest handles updatePet operation.
+// handleUpdatePetRequest handles updatePet operation.
 //
 // POST /pet/{petId}
 func (s *Server) handleUpdatePetRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
@@ -212,7 +315,7 @@ func (s *Server) handleUpdatePetRequest(args [1]string, w http.ResponseWriter, r
 	// Start a span for this request.
 	ctx, span := s.cfg.Tracer.Start(r.Context(), "UpdatePet",
 		trace.WithAttributes(otelAttrs...),
-		trace.WithSpanKind(trace.SpanKindServer),
+		serverSpanKind,
 	)
 	defer span.End()
 
@@ -249,7 +352,41 @@ func (s *Server) handleUpdatePetRequest(args [1]string, w http.ResponseWriter, r
 		return
 	}
 
-	response, err := s.h.UpdatePet(ctx, params)
+	var response UpdatePetOK
+	if m := s.cfg.Middleware; m != nil {
+		mreq := middleware.Request{
+			Context:       ctx,
+			OperationName: "UpdatePet",
+			OperationID:   "updatePet",
+			Body:          nil,
+			Params: map[string]any{
+				"petId":  params.PetId,
+				"name":   params.Name,
+				"status": params.Status,
+			},
+			Raw: r,
+		}
+
+		type (
+			Request  = struct{}
+			Params   = UpdatePetParams
+			Response = UpdatePetOK
+		)
+		response, err = middleware.HookMiddleware[
+			Request,
+			Params,
+			Response,
+		](
+			m,
+			mreq,
+			unpackUpdatePetParams,
+			func(ctx context.Context, request Request, params Params) (Response, error) {
+				return s.h.UpdatePet(ctx, params)
+			},
+		)
+	} else {
+		response, err = s.h.UpdatePet(ctx, params)
+	}
 	if err != nil {
 		recordError("Internal", err)
 		s.cfg.ErrorHandler(ctx, w, r, err)
