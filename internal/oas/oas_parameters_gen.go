@@ -8,6 +8,7 @@ import (
 	"github.com/go-faster/errors"
 
 	"github.com/ogen-go/ogen/conv"
+	"github.com/ogen-go/ogen/middleware"
 	"github.com/ogen-go/ogen/uri"
 )
 
@@ -17,8 +18,14 @@ type DeletePetParams struct {
 	PetId int64
 }
 
-func unpackDeletePetParams(packed map[string]any) (params DeletePetParams) {
-	params.PetId = packed["petId"].(int64)
+func unpackDeletePetParams(packed middleware.Parameters) (params DeletePetParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "petId",
+			In:   "path",
+		}
+		params.PetId = packed[key].(int64)
+	}
 	return params
 }
 
@@ -63,8 +70,14 @@ type GetPetByIdParams struct {
 	PetId int64
 }
 
-func unpackGetPetByIdParams(packed map[string]any) (params GetPetByIdParams) {
-	params.PetId = packed["petId"].(int64)
+func unpackGetPetByIdParams(packed middleware.Parameters) (params GetPetByIdParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "petId",
+			In:   "path",
+		}
+		params.PetId = packed[key].(int64)
+	}
 	return params
 }
 
@@ -113,13 +126,31 @@ type UpdatePetParams struct {
 	Status OptPetStatus
 }
 
-func unpackUpdatePetParams(packed map[string]any) (params UpdatePetParams) {
-	params.PetId = packed["petId"].(int64)
-	if v, ok := packed["name"]; ok {
-		params.Name = v.(OptString)
+func unpackUpdatePetParams(packed middleware.Parameters) (params UpdatePetParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "petId",
+			In:   "path",
+		}
+		params.PetId = packed[key].(int64)
 	}
-	if v, ok := packed["status"]; ok {
-		params.Status = v.(OptPetStatus)
+	{
+		key := middleware.ParameterKey{
+			Name: "name",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.Name = v.(OptString)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "status",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.Status = v.(OptPetStatus)
+		}
 	}
 	return params
 }

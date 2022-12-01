@@ -78,7 +78,7 @@ func (s *Server) handleAddPetRequest(args [0]string, w http.ResponseWriter, r *h
 			OperationName: "AddPet",
 			OperationID:   "addPet",
 			Body:          request,
-			Params:        map[string]any{},
+			Params:        middleware.Parameters{},
 			Raw:           r,
 		}
 
@@ -172,8 +172,11 @@ func (s *Server) handleDeletePetRequest(args [1]string, w http.ResponseWriter, r
 			OperationName: "DeletePet",
 			OperationID:   "deletePet",
 			Body:          nil,
-			Params: map[string]any{
-				"petId": params.PetId,
+			Params: middleware.Parameters{
+				{
+					Name: "petId",
+					In:   "path",
+				}: params.PetId,
 			},
 			Raw: r,
 		}
@@ -268,8 +271,11 @@ func (s *Server) handleGetPetByIdRequest(args [1]string, w http.ResponseWriter, 
 			OperationName: "GetPetById",
 			OperationID:   "getPetById",
 			Body:          nil,
-			Params: map[string]any{
-				"petId": params.PetId,
+			Params: middleware.Parameters{
+				{
+					Name: "petId",
+					In:   "path",
+				}: params.PetId,
 			},
 			Raw: r,
 		}
@@ -364,10 +370,19 @@ func (s *Server) handleUpdatePetRequest(args [1]string, w http.ResponseWriter, r
 			OperationName: "UpdatePet",
 			OperationID:   "updatePet",
 			Body:          nil,
-			Params: map[string]any{
-				"petId":  params.PetId,
-				"name":   params.Name,
-				"status": params.Status,
+			Params: middleware.Parameters{
+				{
+					Name: "petId",
+					In:   "path",
+				}: params.PetId,
+				{
+					Name: "name",
+					In:   "query",
+				}: params.Name,
+				{
+					Name: "status",
+					In:   "query",
+				}: params.Status,
 			},
 			Raw: r,
 		}
