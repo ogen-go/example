@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/fatih/color v1.13.0
 	github.com/go-faster/errors v0.6.1
-	github.com/go-faster/jx v0.40.0
+	github.com/go-faster/jx v0.40.1
 	github.com/ogen-go/ogen v0.55.0
 	github.com/povilasv/prommod v0.0.12
 	github.com/prometheus/client_golang v1.14.0
@@ -39,7 +39,7 @@ require (
 	github.com/prometheus/procfs v0.8.0 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
-	golang.org/x/exp v0.0.0-20221106115401-f9659909a136 // indirect
+	golang.org/x/exp v0.0.0-20230116083435-1de6713980de // indirect
 	golang.org/x/mod v0.7.0 // indirect
 	golang.org/x/net v0.2.0 // indirect
 	golang.org/x/sys v0.2.0 // indirect
