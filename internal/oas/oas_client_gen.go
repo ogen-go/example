@@ -18,15 +18,15 @@ import (
 	"github.com/ogen-go/ogen/uri"
 )
 
-var _ Handler = struct {
-	*Client
-}{}
-
 // Client implements OAS client.
 type Client struct {
 	serverURL *url.URL
 	baseClient
 }
+
+var _ Handler = struct {
+	*Client
+}{}
 
 // NewClient initializes new Client defined by OAS.
 func NewClient(serverURL string, opts ...ClientOption) (*Client, error) {
@@ -64,7 +64,13 @@ func (c *Client) requestURL(ctx context.Context) *url.URL {
 // Add a new pet to the store.
 //
 // POST /pet
-func (c *Client) AddPet(ctx context.Context, request Pet) (res Pet, err error) {
+func (c *Client) AddPet(ctx context.Context, request *Pet) (*Pet, error) {
+	res, err := c.sendAddPet(ctx, request)
+	_ = res
+	return res, err
+}
+
+func (c *Client) sendAddPet(ctx context.Context, request *Pet) (res *Pet, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("addPet"),
 	}
@@ -138,7 +144,13 @@ func (c *Client) AddPet(ctx context.Context, request Pet) (res Pet, err error) {
 // Deletes a pet.
 //
 // DELETE /pet/{petId}
-func (c *Client) DeletePet(ctx context.Context, params DeletePetParams) (res DeletePetOK, err error) {
+func (c *Client) DeletePet(ctx context.Context, params DeletePetParams) error {
+	res, err := c.sendDeletePet(ctx, params)
+	_ = res
+	return err
+}
+
+func (c *Client) sendDeletePet(ctx context.Context, params DeletePetParams) (res *DeletePetOK, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("deletePet"),
 	}
@@ -214,7 +226,13 @@ func (c *Client) DeletePet(ctx context.Context, params DeletePetParams) (res Del
 // Returns a single pet.
 //
 // GET /pet/{petId}
-func (c *Client) GetPetById(ctx context.Context, params GetPetByIdParams) (res GetPetByIdRes, err error) {
+func (c *Client) GetPetById(ctx context.Context, params GetPetByIdParams) (GetPetByIdRes, error) {
+	res, err := c.sendGetPetById(ctx, params)
+	_ = res
+	return res, err
+}
+
+func (c *Client) sendGetPetById(ctx context.Context, params GetPetByIdParams) (res GetPetByIdRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getPetById"),
 	}
@@ -290,7 +308,13 @@ func (c *Client) GetPetById(ctx context.Context, params GetPetByIdParams) (res G
 // Updates a pet in the store.
 //
 // POST /pet/{petId}
-func (c *Client) UpdatePet(ctx context.Context, params UpdatePetParams) (res UpdatePetOK, err error) {
+func (c *Client) UpdatePet(ctx context.Context, params UpdatePetParams) error {
+	res, err := c.sendUpdatePet(ctx, params)
+	_ = res
+	return err
+}
+
+func (c *Client) sendUpdatePet(ctx context.Context, params UpdatePetParams) (res *UpdatePetOK, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("updatePet"),
 	}

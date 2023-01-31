@@ -2,6 +2,10 @@
 
 package oas
 
+import (
+	"github.com/go-faster/errors"
+)
+
 // DeletePetOK is response for DeletePet operation.
 type DeletePetOK struct{}
 
@@ -157,22 +161,22 @@ type Pet struct {
 }
 
 // GetID returns the value of ID.
-func (s Pet) GetID() OptInt64 {
+func (s *Pet) GetID() OptInt64 {
 	return s.ID
 }
 
 // GetName returns the value of Name.
-func (s Pet) GetName() string {
+func (s *Pet) GetName() string {
 	return s.Name
 }
 
 // GetPhotoUrls returns the value of PhotoUrls.
-func (s Pet) GetPhotoUrls() []string {
+func (s *Pet) GetPhotoUrls() []string {
 	return s.PhotoUrls
 }
 
 // GetStatus returns the value of Status.
-func (s Pet) GetStatus() OptPetStatus {
+func (s *Pet) GetStatus() OptPetStatus {
 	return s.Status
 }
 
@@ -207,6 +211,37 @@ const (
 	PetStatusPending   PetStatus = "pending"
 	PetStatusSold      PetStatus = "sold"
 )
+
+// MarshalText implements encoding.TextMarshaler.
+func (s PetStatus) MarshalText() ([]byte, error) {
+	switch s {
+	case PetStatusAvailable:
+		return []byte(s), nil
+	case PetStatusPending:
+		return []byte(s), nil
+	case PetStatusSold:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *PetStatus) UnmarshalText(data []byte) error {
+	switch PetStatus(data) {
+	case PetStatusAvailable:
+		*s = PetStatusAvailable
+		return nil
+	case PetStatusPending:
+		*s = PetStatusPending
+		return nil
+	case PetStatusSold:
+		*s = PetStatusSold
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
 
 // UpdatePetOK is response for UpdatePet operation.
 type UpdatePetOK struct{}

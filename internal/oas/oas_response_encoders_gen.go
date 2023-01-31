@@ -11,7 +11,7 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-func encodeAddPetResponse(response Pet, w http.ResponseWriter, span trace.Span) error {
+func encodeAddPetResponse(response *Pet, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 	span.SetStatus(codes.Ok, http.StatusText(200))
@@ -24,7 +24,7 @@ func encodeAddPetResponse(response Pet, w http.ResponseWriter, span trace.Span) 
 	return nil
 }
 
-func encodeDeletePetResponse(response DeletePetOK, w http.ResponseWriter, span trace.Span) error {
+func encodeDeletePetResponse(response *DeletePetOK, w http.ResponseWriter, span trace.Span) error {
 	w.WriteHeader(200)
 	span.SetStatus(codes.Ok, http.StatusText(200))
 
@@ -56,7 +56,7 @@ func encodeGetPetByIdResponse(response GetPetByIdRes, w http.ResponseWriter, spa
 	}
 }
 
-func encodeUpdatePetResponse(response UpdatePetOK, w http.ResponseWriter, span trace.Span) error {
+func encodeUpdatePetResponse(response *UpdatePetOK, w http.ResponseWriter, span trace.Span) error {
 	w.WriteHeader(200)
 	span.SetStatus(codes.Ok, http.StatusText(200))
 

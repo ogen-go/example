@@ -8,7 +8,7 @@ import (
 	"github.com/ogen-go/ogen/validate"
 )
 
-func (s Pet) Validate() error {
+func (s *Pet) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
 		if s.Status.Set {

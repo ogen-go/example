@@ -4,12 +4,15 @@ package oas
 
 import (
 	"net/http"
+	"net/url"
 
 	"github.com/go-faster/errors"
 
 	"github.com/ogen-go/ogen/conv"
 	"github.com/ogen-go/ogen/middleware"
+	"github.com/ogen-go/ogen/ogenerrors"
 	"github.com/ogen-go/ogen/uri"
+	"github.com/ogen-go/ogen/validate"
 )
 
 // DeletePetParams is parameters of deletePet operation.
@@ -31,8 +34,11 @@ func unpackDeletePetParams(packed middleware.Parameters) (params DeletePetParams
 
 func decodeDeletePetParams(args [1]string, r *http.Request) (params DeletePetParams, _ error) {
 	// Decode path: petId.
-	{
-		param := args[0]
+	if err := func() error {
+		param, err := url.PathUnescape(args[0])
+		if err != nil {
+			return errors.Wrap(err, "unescape path")
+		}
 		if len(param) > 0 {
 			d := uri.NewPathDecoder(uri.PathDecoderConfig{
 				Param:   "petId",
@@ -55,10 +61,17 @@ func decodeDeletePetParams(args [1]string, r *http.Request) (params DeletePetPar
 				params.PetId = c
 				return nil
 			}(); err != nil {
-				return params, errors.Wrap(err, "path: petId: parse")
+				return err
 			}
 		} else {
-			return params, errors.New("path: petId: not specified")
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "petId",
+			In:   "path",
+			Err:  err,
 		}
 	}
 	return params, nil
@@ -83,8 +96,11 @@ func unpackGetPetByIdParams(packed middleware.Parameters) (params GetPetByIdPara
 
 func decodeGetPetByIdParams(args [1]string, r *http.Request) (params GetPetByIdParams, _ error) {
 	// Decode path: petId.
-	{
-		param := args[0]
+	if err := func() error {
+		param, err := url.PathUnescape(args[0])
+		if err != nil {
+			return errors.Wrap(err, "unescape path")
+		}
 		if len(param) > 0 {
 			d := uri.NewPathDecoder(uri.PathDecoderConfig{
 				Param:   "petId",
@@ -107,10 +123,17 @@ func decodeGetPetByIdParams(args [1]string, r *http.Request) (params GetPetByIdP
 				params.PetId = c
 				return nil
 			}(); err != nil {
-				return params, errors.Wrap(err, "path: petId: parse")
+				return err
 			}
 		} else {
-			return params, errors.New("path: petId: not specified")
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "petId",
+			In:   "path",
+			Err:  err,
 		}
 	}
 	return params, nil
@@ -158,8 +181,11 @@ func unpackUpdatePetParams(packed middleware.Parameters) (params UpdatePetParams
 func decodeUpdatePetParams(args [1]string, r *http.Request) (params UpdatePetParams, _ error) {
 	q := uri.NewQueryDecoder(r.URL.Query())
 	// Decode path: petId.
-	{
-		param := args[0]
+	if err := func() error {
+		param, err := url.PathUnescape(args[0])
+		if err != nil {
+			return errors.Wrap(err, "unescape path")
+		}
 		if len(param) > 0 {
 			d := uri.NewPathDecoder(uri.PathDecoderConfig{
 				Param:   "petId",
@@ -182,14 +208,21 @@ func decodeUpdatePetParams(args [1]string, r *http.Request) (params UpdatePetPar
 				params.PetId = c
 				return nil
 			}(); err != nil {
-				return params, errors.Wrap(err, "path: petId: parse")
+				return err
 			}
 		} else {
-			return params, errors.New("path: petId: not specified")
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "petId",
+			In:   "path",
+			Err:  err,
 		}
 	}
 	// Decode query: name.
-	{
+	if err := func() error {
 		cfg := uri.QueryParameterDecodingConfig{
 			Name:    "name",
 			Style:   uri.QueryStyleForm,
@@ -218,12 +251,19 @@ func decodeUpdatePetParams(args [1]string, r *http.Request) (params UpdatePetPar
 				params.Name.SetTo(paramsDotNameVal)
 				return nil
 			}); err != nil {
-				return params, errors.Wrap(err, "query: name: parse")
+				return err
 			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "name",
+			In:   "query",
+			Err:  err,
 		}
 	}
 	// Decode query: status.
-	{
+	if err := func() error {
 		cfg := uri.QueryParameterDecodingConfig{
 			Name:    "status",
 			Style:   uri.QueryStyleForm,
@@ -252,7 +292,7 @@ func decodeUpdatePetParams(args [1]string, r *http.Request) (params UpdatePetPar
 				params.Status.SetTo(paramsDotStatusVal)
 				return nil
 			}); err != nil {
-				return params, errors.Wrap(err, "query: status: parse")
+				return err
 			}
 			if err := func() error {
 				if params.Status.Set {
@@ -267,8 +307,15 @@ func decodeUpdatePetParams(args [1]string, r *http.Request) (params UpdatePetPar
 				}
 				return nil
 			}(); err != nil {
-				return params, errors.Wrap(err, "query: status: invalid")
+				return err
 			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "status",
+			In:   "query",
+			Err:  err,
 		}
 	}
 	return params, nil
