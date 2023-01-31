@@ -12,17 +12,14 @@ import (
 	"github.com/povilasv/prommod"
 	promClient "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/collectors"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/jaeger"
 	"go.opentelemetry.io/otel/exporters/prometheus"
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/metric/global"
 	"go.opentelemetry.io/otel/propagation"
-	"go.opentelemetry.io/otel/sdk/metric/aggregator/histogram"
-	controller "go.opentelemetry.io/otel/sdk/metric/controller/basic"
-	"go.opentelemetry.io/otel/sdk/metric/export/aggregation"
-	processor "go.opentelemetry.io/otel/sdk/metric/processor/basic"
-	selector "go.opentelemetry.io/otel/sdk/metric/selector/simple"
+	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"go.opentelemetry.io/otel/trace"
@@ -32,32 +29,21 @@ import (
 
 // Metrics wraps application metrics and providers.
 type Metrics struct {
-	prometheus     *prometheus.Exporter
+	meterProvider *sdkmetric.MeterProvider
+	prometheus    http.Handler
+
 	tracerProvider *sdktrace.TracerProvider
 	jaeger         *jaeger.Exporter
-	resource       *resource.Resource
-	mux            *http.ServeMux
-	srv            *http.Server
+
+	resource *resource.Resource
+	mux      *http.ServeMux
+	srv      *http.Server
 }
 
 // Config for metrics.
 type Config struct {
 	Addr string // address for metrics server, optional
 	Name string // default name of the service, optional
-}
-
-func newPrometheus(config prometheus.Config, options ...controller.Option) (*prometheus.Exporter, error) {
-	c := controller.New(
-		processor.NewFactory(
-			selector.NewWithHistogramDistribution(
-				histogram.WithExplicitBoundaries(config.DefaultHistogramBoundaries),
-			),
-			aggregation.CumulativeTemporalitySelector(),
-			processor.WithMemory(true),
-		),
-		options...,
-	)
-	return prometheus.New(config, c)
 }
 
 func (m *Metrics) registerProfiler() {
@@ -81,7 +67,7 @@ func (m *Metrics) registerPrometheus() {
 }
 
 func (m *Metrics) MeterProvider() metric.MeterProvider {
-	return m.prometheus.MeterProvider()
+	return m.meterProvider
 }
 
 func (m *Metrics) TracerProvider() trace.TracerProvider {
@@ -165,6 +151,17 @@ func NewMetrics(log *zap.Logger, cfg Config) (*Metrics, error) {
 		prommod.NewCollector("server"),
 	)
 
+	promExporter, err := prometheus.New(
+		prometheus.WithRegisterer(registry),
+	)
+	if err != nil {
+		return nil, errors.Wrap(err, "prometheus")
+	}
+	metricProvider := sdkmetric.NewMeterProvider(
+		sdkmetric.WithResource(res),
+		sdkmetric.WithReader(promExporter),
+	)
+
 	// The jaeger.WithAgentEndpoint uses environment variables to configure endpoints:
 	//
 	// - OTEL_EXPORTER_JAEGER_AGENT_HOST is used for the agent address host
@@ -175,33 +172,21 @@ func NewMetrics(log *zap.Logger, cfg Config) (*Metrics, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "jaeger")
 	}
-
-	promExporter, err := newPrometheus(prometheus.Config{
-		DefaultHistogramBoundaries: promClient.DefBuckets,
-
-		Registry:   registry,
-		Gatherer:   registry,
-		Registerer: registry,
-	},
-		controller.WithCollectPeriod(0),
-		controller.WithResource(res),
-	)
-	if err != nil {
-		return nil, errors.Wrap(err, "prometheus")
-	}
-
 	tracerProvider := sdktrace.NewTracerProvider(
 		sdktrace.WithResource(res),
 		sdktrace.WithBatcher(jaegerExporter),
 	)
+
 	mux := http.NewServeMux()
 	m := &Metrics{
-		resource:       res,
-		prometheus:     promExporter,
-		jaeger:         jaegerExporter,
-		tracerProvider: tracerProvider,
+		meterProvider: metricProvider,
+		prometheus:    promhttp.HandlerFor(registry, promhttp.HandlerOpts{}),
 
-		mux: mux,
+		tracerProvider: tracerProvider,
+		jaeger:         jaegerExporter,
+
+		resource: res,
+		mux:      mux,
 		srv: &http.Server{
 			Handler: mux,
 			Addr:    cfg.Addr,
