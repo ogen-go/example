@@ -13,13 +13,13 @@ type Handler interface {
 	// Add a new pet to the store.
 	//
 	// POST /pet
-	AddPet(ctx context.Context, req Pet) (Pet, error)
+	AddPet(ctx context.Context, req *Pet) (*Pet, error)
 	// DeletePet implements deletePet operation.
 	//
 	// Deletes a pet.
 	//
 	// DELETE /pet/{petId}
-	DeletePet(ctx context.Context, params DeletePetParams) (DeletePetOK, error)
+	DeletePet(ctx context.Context, params DeletePetParams) error
 	// GetPetById implements getPetById operation.
 	//
 	// Returns a single pet.
@@ -31,7 +31,7 @@ type Handler interface {
 	// Updates a pet in the store.
 	//
 	// POST /pet/{petId}
-	UpdatePet(ctx context.Context, params UpdatePetParams) (UpdatePetOK, error)
+	UpdatePet(ctx context.Context, params UpdatePetParams) error
 }
 
 // Server implements http server based on OpenAPI v3 specification and

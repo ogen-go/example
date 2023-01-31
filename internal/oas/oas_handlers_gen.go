@@ -71,7 +71,7 @@ func (s *Server) handleAddPetRequest(args [0]string, w http.ResponseWriter, r *h
 		}
 	}()
 
-	var response Pet
+	var response *Pet
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:       ctx,
@@ -83,9 +83,9 @@ func (s *Server) handleAddPetRequest(args [0]string, w http.ResponseWriter, r *h
 		}
 
 		type (
-			Request  = Pet
+			Request  = *Pet
 			Params   = struct{}
-			Response = Pet
+			Response = *Pet
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -95,8 +95,9 @@ func (s *Server) handleAddPetRequest(args [0]string, w http.ResponseWriter, r *h
 			m,
 			mreq,
 			nil,
-			func(ctx context.Context, request Request, params Params) (Response, error) {
-				return s.h.AddPet(ctx, request)
+			func(ctx context.Context, request Request, params Params) (response Response, err error) {
+				response, err = s.h.AddPet(ctx, request)
+				return response, err
 			},
 		)
 	} else {
@@ -165,7 +166,7 @@ func (s *Server) handleDeletePetRequest(args [1]string, w http.ResponseWriter, r
 		return
 	}
 
-	var response DeletePetOK
+	var response *DeletePetOK
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:       ctx,
@@ -184,7 +185,7 @@ func (s *Server) handleDeletePetRequest(args [1]string, w http.ResponseWriter, r
 		type (
 			Request  = struct{}
 			Params   = DeletePetParams
-			Response = DeletePetOK
+			Response = *DeletePetOK
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -194,12 +195,13 @@ func (s *Server) handleDeletePetRequest(args [1]string, w http.ResponseWriter, r
 			m,
 			mreq,
 			unpackDeletePetParams,
-			func(ctx context.Context, request Request, params Params) (Response, error) {
-				return s.h.DeletePet(ctx, params)
+			func(ctx context.Context, request Request, params Params) (response Response, err error) {
+				err = s.h.DeletePet(ctx, params)
+				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.DeletePet(ctx, params)
+		err = s.h.DeletePet(ctx, params)
 	}
 	if err != nil {
 		recordError("Internal", err)
@@ -293,8 +295,9 @@ func (s *Server) handleGetPetByIdRequest(args [1]string, w http.ResponseWriter, 
 			m,
 			mreq,
 			unpackGetPetByIdParams,
-			func(ctx context.Context, request Request, params Params) (Response, error) {
-				return s.h.GetPetById(ctx, params)
+			func(ctx context.Context, request Request, params Params) (response Response, err error) {
+				response, err = s.h.GetPetById(ctx, params)
+				return response, err
 			},
 		)
 	} else {
@@ -363,7 +366,7 @@ func (s *Server) handleUpdatePetRequest(args [1]string, w http.ResponseWriter, r
 		return
 	}
 
-	var response UpdatePetOK
+	var response *UpdatePetOK
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:       ctx,
@@ -390,7 +393,7 @@ func (s *Server) handleUpdatePetRequest(args [1]string, w http.ResponseWriter, r
 		type (
 			Request  = struct{}
 			Params   = UpdatePetParams
-			Response = UpdatePetOK
+			Response = *UpdatePetOK
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -400,12 +403,13 @@ func (s *Server) handleUpdatePetRequest(args [1]string, w http.ResponseWriter, r
 			m,
 			mreq,
 			unpackUpdatePetParams,
-			func(ctx context.Context, request Request, params Params) (Response, error) {
-				return s.h.UpdatePet(ctx, params)
+			func(ctx context.Context, request Request, params Params) (response Response, err error) {
+				err = s.h.UpdatePet(ctx, params)
+				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.UpdatePet(ctx, params)
+		err = s.h.UpdatePet(ctx, params)
 	}
 	if err != nil {
 		recordError("Internal", err)

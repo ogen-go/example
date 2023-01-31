@@ -10,10 +10,11 @@ import (
 	"github.com/go-faster/errors"
 	"github.com/go-faster/jx"
 
+	"github.com/ogen-go/ogen/ogenerrors"
 	"github.com/ogen-go/ogen/validate"
 )
 
-func decodeAddPetResponse(resp *http.Response) (res Pet, err error) {
+func decodeAddPetResponse(resp *http.Response) (res *Pet, err error) {
 	switch resp.StatusCode {
 	case 200:
 		// Code 200.
@@ -23,25 +24,30 @@ func decodeAddPetResponse(resp *http.Response) (res Pet, err error) {
 		}
 		switch {
 		case ct == "application/json":
-			b, err := io.ReadAll(resp.Body)
+			buf, err := io.ReadAll(resp.Body)
 			if err != nil {
 				return res, err
 			}
 
-			d := jx.DecodeBytes(b)
+			d := jx.DecodeBytes(buf)
 			var response Pet
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
 				}
+				if err := d.Skip(); err != io.EOF {
+					return errors.New("unexpected trailing data")
+				}
 				return nil
 			}(); err != nil {
-				return res, errors.Wrap(err, "decode \"application/json\"")
+				err = &ogenerrors.DecodeBodyError{
+					ContentType: ct,
+					Body:        buf,
+					Err:         err,
+				}
+				return res, err
 			}
-			if err := d.Skip(); err != io.EOF {
-				return res, errors.New("unexpected trailing data")
-			}
-			return response, nil
+			return &response, nil
 		default:
 			return res, validate.InvalidContentType(ct)
 		}
@@ -49,11 +55,11 @@ func decodeAddPetResponse(resp *http.Response) (res Pet, err error) {
 	return res, validate.UnexpectedStatusCode(resp.StatusCode)
 }
 
-func decodeDeletePetResponse(resp *http.Response) (res DeletePetOK, err error) {
+func decodeDeletePetResponse(resp *http.Response) (res *DeletePetOK, err error) {
 	switch resp.StatusCode {
 	case 200:
 		// Code 200.
-		return DeletePetOK{}, nil
+		return &DeletePetOK{}, nil
 	}
 	return res, validate.UnexpectedStatusCode(resp.StatusCode)
 }
@@ -68,23 +74,28 @@ func decodeGetPetByIdResponse(resp *http.Response) (res GetPetByIdRes, err error
 		}
 		switch {
 		case ct == "application/json":
-			b, err := io.ReadAll(resp.Body)
+			buf, err := io.ReadAll(resp.Body)
 			if err != nil {
 				return res, err
 			}
 
-			d := jx.DecodeBytes(b)
+			d := jx.DecodeBytes(buf)
 			var response Pet
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
 				}
+				if err := d.Skip(); err != io.EOF {
+					return errors.New("unexpected trailing data")
+				}
 				return nil
 			}(); err != nil {
-				return res, errors.Wrap(err, "decode \"application/json\"")
-			}
-			if err := d.Skip(); err != io.EOF {
-				return res, errors.New("unexpected trailing data")
+				err = &ogenerrors.DecodeBodyError{
+					ContentType: ct,
+					Body:        buf,
+					Err:         err,
+				}
+				return res, err
 			}
 			return &response, nil
 		default:
@@ -97,11 +108,11 @@ func decodeGetPetByIdResponse(resp *http.Response) (res GetPetByIdRes, err error
 	return res, validate.UnexpectedStatusCode(resp.StatusCode)
 }
 
-func decodeUpdatePetResponse(resp *http.Response) (res UpdatePetOK, err error) {
+func decodeUpdatePetResponse(resp *http.Response) (res *UpdatePetOK, err error) {
 	switch resp.StatusCode {
 	case 200:
 		// Code 200.
-		return UpdatePetOK{}, nil
+		return &UpdatePetOK{}, nil
 	}
 	return res, validate.UnexpectedStatusCode(resp.StatusCode)
 }

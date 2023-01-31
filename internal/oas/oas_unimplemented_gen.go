@@ -18,7 +18,7 @@ var _ Handler = UnimplementedHandler{}
 // Add a new pet to the store.
 //
 // POST /pet
-func (UnimplementedHandler) AddPet(ctx context.Context, req Pet) (r Pet, _ error) {
+func (UnimplementedHandler) AddPet(ctx context.Context, req *Pet) (r *Pet, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -27,8 +27,8 @@ func (UnimplementedHandler) AddPet(ctx context.Context, req Pet) (r Pet, _ error
 // Deletes a pet.
 //
 // DELETE /pet/{petId}
-func (UnimplementedHandler) DeletePet(ctx context.Context, params DeletePetParams) (r DeletePetOK, _ error) {
-	return r, ht.ErrNotImplemented
+func (UnimplementedHandler) DeletePet(ctx context.Context, params DeletePetParams) error {
+	return ht.ErrNotImplemented
 }
 
 // GetPetById implements getPetById operation.
@@ -45,6 +45,6 @@ func (UnimplementedHandler) GetPetById(ctx context.Context, params GetPetByIdPar
 // Updates a pet in the store.
 //
 // POST /pet/{petId}
-func (UnimplementedHandler) UpdatePet(ctx context.Context, params UpdatePetParams) (r UpdatePetOK, _ error) {
-	return r, ht.ErrNotImplemented
+func (UnimplementedHandler) UpdatePet(ctx context.Context, params UpdatePetParams) error {
+	return ht.ErrNotImplemented
 }
