@@ -10,7 +10,7 @@ require (
 	github.com/povilasv/prommod v0.0.12
 	github.com/prometheus/client_golang v1.14.0
 	go.opentelemetry.io/otel v1.13.0
-	go.opentelemetry.io/otel/exporters/jaeger v1.11.2
+	go.opentelemetry.io/otel/exporters/jaeger v1.13.0
 	go.opentelemetry.io/otel/exporters/prometheus v0.35.0
 	go.opentelemetry.io/otel/metric v0.35.0
 	go.opentelemetry.io/otel/sdk v1.13.0
