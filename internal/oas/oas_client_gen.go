@@ -5,6 +5,7 @@ package oas
 import (
 	"context"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/go-faster/errors"
@@ -28,12 +29,19 @@ var _ Handler = struct {
 	*Client
 }{}
 
+func trimTrailingSlashes(u *url.URL) {
+	u.Path = strings.TrimRight(u.Path, "/")
+	u.RawPath = strings.TrimRight(u.RawPath, "/")
+}
+
 // NewClient initializes new Client defined by OAS.
 func NewClient(serverURL string, opts ...ClientOption) (*Client, error) {
 	u, err := url.Parse(serverURL)
 	if err != nil {
 		return nil, err
 	}
+	trimTrailingSlashes(u)
+
 	c, err := newClientConfig(opts...).baseClient()
 	if err != nil {
 		return nil, err
@@ -112,7 +120,9 @@ func (c *Client) sendAddPet(ctx context.Context, request *Pet) (res *Pet, err er
 
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
-	u.Path += "/pet"
+	var pathParts [1]string
+	pathParts[0] = "/pet"
+	uri.AddPathParts(u, pathParts[:]...)
 
 	stage = "EncodeRequest"
 	r, err := ht.NewRequest(ctx, "POST", u, nil)
@@ -183,7 +193,8 @@ func (c *Client) sendDeletePet(ctx context.Context, params DeletePetParams) (res
 
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
-	u.Path += "/pet/"
+	var pathParts [2]string
+	pathParts[0] = "/pet/"
 	{
 		// Encode "petId" parameter.
 		e := uri.NewPathEncoder(uri.PathEncoderConfig{
@@ -196,8 +207,13 @@ func (c *Client) sendDeletePet(ctx context.Context, params DeletePetParams) (res
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
-		u.Path += e.Result()
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
 	}
+	uri.AddPathParts(u, pathParts[:]...)
 
 	stage = "EncodeRequest"
 	r, err := ht.NewRequest(ctx, "DELETE", u, nil)
@@ -265,7 +281,8 @@ func (c *Client) sendGetPetById(ctx context.Context, params GetPetByIdParams) (r
 
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
-	u.Path += "/pet/"
+	var pathParts [2]string
+	pathParts[0] = "/pet/"
 	{
 		// Encode "petId" parameter.
 		e := uri.NewPathEncoder(uri.PathEncoderConfig{
@@ -278,8 +295,13 @@ func (c *Client) sendGetPetById(ctx context.Context, params GetPetByIdParams) (r
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
-		u.Path += e.Result()
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
 	}
+	uri.AddPathParts(u, pathParts[:]...)
 
 	stage = "EncodeRequest"
 	r, err := ht.NewRequest(ctx, "GET", u, nil)
@@ -347,7 +369,8 @@ func (c *Client) sendUpdatePet(ctx context.Context, params UpdatePetParams) (res
 
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
-	u.Path += "/pet/"
+	var pathParts [2]string
+	pathParts[0] = "/pet/"
 	{
 		// Encode "petId" parameter.
 		e := uri.NewPathEncoder(uri.PathEncoderConfig{
@@ -360,8 +383,13 @@ func (c *Client) sendUpdatePet(ctx context.Context, params UpdatePetParams) (res
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
-		u.Path += e.Result()
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
 	}
+	uri.AddPathParts(u, pathParts[:]...)
 
 	stage = "EncodeQueryParams"
 	q := uri.NewQueryEncoder()

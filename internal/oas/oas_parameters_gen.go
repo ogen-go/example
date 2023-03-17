@@ -32,12 +32,16 @@ func unpackDeletePetParams(packed middleware.Parameters) (params DeletePetParams
 	return params
 }
 
-func decodeDeletePetParams(args [1]string, r *http.Request) (params DeletePetParams, _ error) {
+func decodeDeletePetParams(args [1]string, argsEscaped bool, r *http.Request) (params DeletePetParams, _ error) {
 	// Decode path: petId.
 	if err := func() error {
-		param, err := url.PathUnescape(args[0])
-		if err != nil {
-			return errors.Wrap(err, "unescape path")
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
 		}
 		if len(param) > 0 {
 			d := uri.NewPathDecoder(uri.PathDecoderConfig{
@@ -94,12 +98,16 @@ func unpackGetPetByIdParams(packed middleware.Parameters) (params GetPetByIdPara
 	return params
 }
 
-func decodeGetPetByIdParams(args [1]string, r *http.Request) (params GetPetByIdParams, _ error) {
+func decodeGetPetByIdParams(args [1]string, argsEscaped bool, r *http.Request) (params GetPetByIdParams, _ error) {
 	// Decode path: petId.
 	if err := func() error {
-		param, err := url.PathUnescape(args[0])
-		if err != nil {
-			return errors.Wrap(err, "unescape path")
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
 		}
 		if len(param) > 0 {
 			d := uri.NewPathDecoder(uri.PathDecoderConfig{
@@ -178,13 +186,17 @@ func unpackUpdatePetParams(packed middleware.Parameters) (params UpdatePetParams
 	return params
 }
 
-func decodeUpdatePetParams(args [1]string, r *http.Request) (params UpdatePetParams, _ error) {
+func decodeUpdatePetParams(args [1]string, argsEscaped bool, r *http.Request) (params UpdatePetParams, _ error) {
 	q := uri.NewQueryDecoder(r.URL.Query())
 	// Decode path: petId.
 	if err := func() error {
-		param, err := url.PathUnescape(args[0])
-		if err != nil {
-			return errors.Wrap(err, "unescape path")
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
 		}
 		if len(param) > 0 {
 			d := uri.NewPathDecoder(uri.PathDecoderConfig{
