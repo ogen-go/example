@@ -20,6 +20,7 @@ func run(ctx context.Context) error {
 	}
 	flag.StringVar(&arg.BaseURL, "url", "http://localhost:8080", "target server url")
 	flag.Int64Var(&arg.ID, "id", 1337, "pet id to request")
+	flag.Parse()
 
 	client, err := oas.NewClient(arg.BaseURL)
 	if err != nil {
