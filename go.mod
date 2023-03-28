@@ -6,7 +6,7 @@ require (
 	github.com/fatih/color v1.15.0
 	github.com/go-faster/errors v0.6.1
 	github.com/go-faster/jx v1.0.0
-	github.com/ogen-go/ogen v0.60.1
+	github.com/ogen-go/ogen v0.60.2
 	github.com/povilasv/prommod v0.0.12
 	github.com/prometheus/client_golang v1.14.0
 	go.opentelemetry.io/otel v1.14.0
@@ -26,7 +26,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/dlclark/regexp2 v1.8.1 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
-	github.com/go-faster/yamlx v0.4.1 // indirect
+	github.com/go-faster/yamlx v0.4.2 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
