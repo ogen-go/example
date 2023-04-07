@@ -14,7 +14,7 @@ import (
 	"github.com/ogen-go/ogen/validate"
 )
 
-func decodeAddPetResponse(resp *http.Response) (res *Pet, err error) {
+func decodeAddPetResponse(resp *http.Response) (res *Pet, _ error) {
 	switch resp.StatusCode {
 	case 200:
 		// Code 200.
@@ -55,7 +55,7 @@ func decodeAddPetResponse(resp *http.Response) (res *Pet, err error) {
 	return res, validate.UnexpectedStatusCode(resp.StatusCode)
 }
 
-func decodeDeletePetResponse(resp *http.Response) (res *DeletePetOK, err error) {
+func decodeDeletePetResponse(resp *http.Response) (res *DeletePetOK, _ error) {
 	switch resp.StatusCode {
 	case 200:
 		// Code 200.
@@ -64,7 +64,7 @@ func decodeDeletePetResponse(resp *http.Response) (res *DeletePetOK, err error) 
 	return res, validate.UnexpectedStatusCode(resp.StatusCode)
 }
 
-func decodeGetPetByIdResponse(resp *http.Response) (res GetPetByIdRes, err error) {
+func decodeGetPetByIdResponse(resp *http.Response) (res GetPetByIdRes, _ error) {
 	switch resp.StatusCode {
 	case 200:
 		// Code 200.
@@ -108,7 +108,7 @@ func decodeGetPetByIdResponse(resp *http.Response) (res GetPetByIdRes, err error
 	return res, validate.UnexpectedStatusCode(resp.StatusCode)
 }
 
-func decodeUpdatePetResponse(resp *http.Response) (res *UpdatePetOK, err error) {
+func decodeUpdatePetResponse(resp *http.Response) (res *UpdatePetOK, _ error) {
 	switch resp.StatusCode {
 	case 200:
 		// Code 200.
