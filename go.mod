@@ -6,7 +6,7 @@ require (
 	github.com/fatih/color v1.15.0
 	github.com/go-faster/errors v0.6.1
 	github.com/go-faster/jx v1.0.0
-	github.com/ogen-go/ogen v0.61.0
+	github.com/ogen-go/ogen v0.62.0
 	github.com/povilasv/prommod v0.0.12
 	github.com/prometheus/client_golang v1.14.0
 	go.opentelemetry.io/otel v1.14.0
