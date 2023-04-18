@@ -96,7 +96,6 @@ func (s *Pet) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
-
 		e.FieldStart("name")
 		e.Str(s.Name)
 	}
