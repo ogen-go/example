@@ -8,7 +8,7 @@ require (
 	github.com/go-faster/jx v1.0.0
 	github.com/ogen-go/ogen v0.66.0
 	github.com/povilasv/prommod v0.0.12
-	github.com/prometheus/client_golang v1.15.0
+	github.com/prometheus/client_golang v1.15.1
 	go.opentelemetry.io/otel v1.15.1
 	go.opentelemetry.io/otel/exporters/jaeger v1.15.1
 	go.opentelemetry.io/otel/exporters/prometheus v0.38.1
