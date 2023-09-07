@@ -17,7 +17,6 @@ import (
 	"go.opentelemetry.io/otel/exporters/jaeger"
 	"go.opentelemetry.io/otel/exporters/prometheus"
 	"go.opentelemetry.io/otel/metric"
-	"go.opentelemetry.io/otel/metric/global"
 	"go.opentelemetry.io/otel/propagation"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
@@ -194,7 +193,7 @@ func NewMetrics(log *zap.Logger, cfg Config) (*Metrics, error) {
 	}
 
 	// Register global OTEL providers.
-	global.SetMeterProvider(m.MeterProvider())
+	otel.SetMeterProvider(m.MeterProvider())
 	otel.SetTracerProvider(m.tracerProvider)
 	otel.SetTextMapPropagator(
 		propagation.NewCompositeTextMapPropagator(
