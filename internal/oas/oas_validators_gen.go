@@ -11,9 +11,9 @@ import (
 func (s *Pet) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
-		if s.Status.Set {
+		if value, ok := s.Status.Get(); ok {
 			if err := func() error {
-				if err := s.Status.Value.Validate(); err != nil {
+				if err := value.Validate(); err != nil {
 					return err
 				}
 				return nil
@@ -33,6 +33,7 @@ func (s *Pet) Validate() error {
 	}
 	return nil
 }
+
 func (s PetStatus) Validate() error {
 	switch s {
 	case "available":

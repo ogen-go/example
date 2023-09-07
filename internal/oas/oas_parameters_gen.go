@@ -307,9 +307,9 @@ func decodeUpdatePetParams(args [1]string, argsEscaped bool, r *http.Request) (p
 				return err
 			}
 			if err := func() error {
-				if params.Status.Set {
+				if value, ok := params.Status.Get(); ok {
 					if err := func() error {
-						if err := params.Status.Value.Validate(); err != nil {
+						if err := value.Validate(); err != nil {
 							return err
 						}
 						return nil
