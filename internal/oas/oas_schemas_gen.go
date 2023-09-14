@@ -212,6 +212,15 @@ const (
 	PetStatusSold      PetStatus = "sold"
 )
 
+// AllValues returns all PetStatus values.
+func (PetStatus) AllValues() []PetStatus {
+	return []PetStatus{
+		PetStatusAvailable,
+		PetStatusPending,
+		PetStatusSold,
+	}
+}
+
 // MarshalText implements encoding.TextMarshaler.
 func (s PetStatus) MarshalText() ([]byte, error) {
 	switch s {

@@ -21,6 +21,7 @@ func encodeAddPetResponse(response *Pet, w http.ResponseWriter, span trace.Span)
 	if _, err := e.WriteTo(w); err != nil {
 		return errors.Wrap(err, "write")
 	}
+
 	return nil
 }
 
@@ -43,6 +44,7 @@ func encodeGetPetByIdResponse(response GetPetByIdRes, w http.ResponseWriter, spa
 		if _, err := e.WriteTo(w); err != nil {
 			return errors.Wrap(err, "write")
 		}
+
 		return nil
 
 	case *GetPetByIdNotFound:
