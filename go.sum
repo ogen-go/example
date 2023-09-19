@@ -56,8 +56,8 @@ github.com/matttproud/golang_protobuf_extensions v1.0.4/go.mod h1:BSXmuO+STAnVfr
 github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd/go.mod h1:6dJC0mAP4ikYIbvyc7fijjWJddQyLn8Ig3JB5CqoB9Q=
 github.com/modern-go/reflect2 v1.0.1/go.mod h1:bx2lNnkwVCuqBIxFjflWJWanXIb3RllmbCylyMrvgv0=
 github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
-github.com/ogen-go/ogen v0.74.0 h1:EFzCDm9h7RupLMn4RAEC1kIjXa9KUJTLGkMyejVmB34=
-github.com/ogen-go/ogen v0.74.0/go.mod h1:Jr2HmdCICrlXw+29Vcx1EAgx4dIQpXEwCpwuIDqrj6Y=
+github.com/ogen-go/ogen v0.75.0 h1:4p9zxJOPS/lizvKfbqqzRf8jYuzr2NrMJRy69tva6uY=
+github.com/ogen-go/ogen v0.75.0/go.mod h1:Lq8KR3bzieba8gY2uJwRP9r3buXNHClbQhLNOL0PDDM=
 github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
