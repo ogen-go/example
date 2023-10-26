@@ -21,6 +21,34 @@ import (
 	"github.com/ogen-go/ogen/uri"
 )
 
+// Invoker invokes operations described by OpenAPI v3 specification.
+type Invoker interface {
+	// AddPet invokes addPet operation.
+	//
+	// Add a new pet to the store.
+	//
+	// POST /pet
+	AddPet(ctx context.Context, request *Pet) (*Pet, error)
+	// DeletePet invokes deletePet operation.
+	//
+	// Deletes a pet.
+	//
+	// DELETE /pet/{petId}
+	DeletePet(ctx context.Context, params DeletePetParams) error
+	// GetPetById invokes getPetById operation.
+	//
+	// Returns a single pet.
+	//
+	// GET /pet/{petId}
+	GetPetById(ctx context.Context, params GetPetByIdParams) (GetPetByIdRes, error)
+	// UpdatePet invokes updatePet operation.
+	//
+	// Updates a pet in the store.
+	//
+	// POST /pet/{petId}
+	UpdatePet(ctx context.Context, params UpdatePetParams) error
+}
+
 // Client implements OAS client.
 type Client struct {
 	serverURL *url.URL
