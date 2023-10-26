@@ -81,12 +81,13 @@ func (s *Server) handleAddPetRequest(args [0]string, argsEscaped bool, w http.Re
 	var response *Pet
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
-			Context:       ctx,
-			OperationName: "AddPet",
-			OperationID:   "addPet",
-			Body:          request,
-			Params:        middleware.Parameters{},
-			Raw:           r,
+			Context:          ctx,
+			OperationName:    "AddPet",
+			OperationSummary: "Add a new pet to the store",
+			OperationID:      "addPet",
+			Body:             request,
+			Params:           middleware.Parameters{},
+			Raw:              r,
 		}
 
 		type (
@@ -181,10 +182,11 @@ func (s *Server) handleDeletePetRequest(args [1]string, argsEscaped bool, w http
 	var response *DeletePetOK
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
-			Context:       ctx,
-			OperationName: "DeletePet",
-			OperationID:   "deletePet",
-			Body:          nil,
+			Context:          ctx,
+			OperationName:    "DeletePet",
+			OperationSummary: "Deletes a pet",
+			OperationID:      "deletePet",
+			Body:             nil,
 			Params: middleware.Parameters{
 				{
 					Name: "petId",
@@ -286,10 +288,11 @@ func (s *Server) handleGetPetByIdRequest(args [1]string, argsEscaped bool, w htt
 	var response GetPetByIdRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
-			Context:       ctx,
-			OperationName: "GetPetById",
-			OperationID:   "getPetById",
-			Body:          nil,
+			Context:          ctx,
+			OperationName:    "GetPetById",
+			OperationSummary: "Find pet by ID",
+			OperationID:      "getPetById",
+			Body:             nil,
 			Params: middleware.Parameters{
 				{
 					Name: "petId",
@@ -391,10 +394,11 @@ func (s *Server) handleUpdatePetRequest(args [1]string, argsEscaped bool, w http
 	var response *UpdatePetOK
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
-			Context:       ctx,
-			OperationName: "UpdatePet",
-			OperationID:   "updatePet",
-			Body:          nil,
+			Context:          ctx,
+			OperationName:    "UpdatePet",
+			OperationSummary: "Updates a pet in the store",
+			OperationID:      "updatePet",
+			Body:             nil,
 			Params: middleware.Parameters{
 				{
 					Name: "petId",
