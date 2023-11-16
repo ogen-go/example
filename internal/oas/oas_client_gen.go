@@ -113,15 +113,6 @@ func (c *Client) sendAddPet(ctx context.Context, request *Pet) (res *Pet, err er
 		semconv.HTTPMethodKey.String("POST"),
 		semconv.HTTPRouteKey.String("/pet"),
 	}
-	// Validate request before sending.
-	if err := func() error {
-		if err := request.Validate(); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return res, errors.Wrap(err, "validate")
-	}
 
 	// Run stopwatch.
 	startTime := time.Now()

@@ -9,6 +9,10 @@ import (
 )
 
 func (s *Pet) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
 	var failures []validate.FieldError
 	if err := func() error {
 		if value, ok := s.Status.Get(); ok {
