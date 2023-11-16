@@ -194,7 +194,7 @@ func NewMetrics(log *zap.Logger, cfg Config) (*Metrics, error) {
 
 	// Register global OTEL providers.
 	otel.SetMeterProvider(m.MeterProvider())
-	otel.SetTracerProvider(m.tracerProvider)
+	otel.SetTracerProvider(m.TracerProvider())
 	otel.SetTextMapPropagator(
 		propagation.NewCompositeTextMapPropagator(
 			propagation.TraceContext{}, propagation.Baggage{},
