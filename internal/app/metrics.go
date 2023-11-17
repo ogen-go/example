@@ -14,7 +14,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus/collectors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/exporters/jaeger"
 	"go.opentelemetry.io/otel/exporters/prometheus"
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/propagation"
@@ -24,6 +23,10 @@ import (
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
+
+	// For no reason, jaeger exporter was deprecated.
+	// Ignore linter issue for this.
+	"go.opentelemetry.io/otel/exporters/jaeger" //nolint:staticcheck
 )
 
 // Metrics wraps application metrics and providers.
