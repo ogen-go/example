@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"net/http"
+	"time"
 
 	"github.com/go-faster/errors"
 	"go.uber.org/zap"
@@ -13,6 +14,8 @@ import (
 	"example/internal/app"
 	"example/internal/oas"
 )
+
+const shutdownTimeout = 15 * time.Second
 
 func main() {
 	app.Run(func(ctx context.Context, lg *zap.Logger) error {
@@ -54,8 +57,14 @@ func main() {
 			return m.Run(ctx)
 		})
 		g.Go(func() error {
+			// Wait until g ctx canceled, then try to shut down server.
 			<-ctx.Done()
-			return httpServer.Shutdown(ctx)
+
+			lg.Info("Shutting down", zap.Duration("timeout", shutdownTimeout))
+
+			shutdownCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
+			defer cancel()
+			return httpServer.Shutdown(shutdownCtx)
 		})
 		g.Go(func() error {
 			defer lg.Info("Server stopped")
