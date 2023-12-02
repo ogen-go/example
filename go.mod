@@ -6,7 +6,7 @@ require (
 	github.com/fatih/color v1.16.0
 	github.com/go-faster/errors v0.7.0
 	github.com/go-faster/jx v1.1.0
-	github.com/ogen-go/ogen v0.78.0
+	github.com/ogen-go/ogen v0.79.1
 	github.com/povilasv/prommod v0.0.12
 	github.com/prometheus/client_golang v1.17.0
 	go.opentelemetry.io/otel v1.21.0
@@ -40,10 +40,10 @@ require (
 	github.com/segmentio/asm v1.2.0 // indirect
 	golang.org/x/exp v0.0.0-20230725093048-515e97ebf090 // indirect
 	golang.org/x/mod v0.14.0 // indirect
-	golang.org/x/net v0.18.0 // indirect
-	golang.org/x/sys v0.14.0 // indirect
+	golang.org/x/net v0.19.0 // indirect
+	golang.org/x/sys v0.15.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
-	golang.org/x/tools v0.15.0 // indirect
+	golang.org/x/tools v0.16.0 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
