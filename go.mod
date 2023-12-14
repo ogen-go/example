@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/fatih/color v1.16.0
-	github.com/go-faster/errors v0.7.0
+	github.com/go-faster/errors v0.7.1
 	github.com/go-faster/jx v1.1.0
 	github.com/ogen-go/ogen v0.78.0
 	github.com/povilasv/prommod v0.0.12
