@@ -7,39 +7,29 @@ import (
 	"time"
 
 	"github.com/go-faster/errors"
+	"github.com/go-faster/sdk/app"
+	"github.com/go-faster/sdk/zctx"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 
 	"example/internal/api"
-	"example/internal/app"
+	"example/internal/httpmiddleware"
 	"example/internal/oas"
 )
 
 const shutdownTimeout = 15 * time.Second
 
 func main() {
-	app.Run(func(ctx context.Context, lg *zap.Logger) error {
+	app.Run(func(ctx context.Context, lg *zap.Logger, m *app.Metrics) error {
 		var arg struct {
-			Addr        string
-			MetricsAddr string
+			Addr string
 		}
-		flag.StringVar(&arg.Addr, "addr", "127.0.0.1:8080", "listen address")
-		flag.StringVar(&arg.MetricsAddr, "metrics.addr", "127.0.0.1:9090", "metrics listen address")
+		flag.StringVar(&arg.Addr, "addr", "0.0.0.0:8080", "listen address")
 		flag.Parse()
 
 		lg.Info("Initializing",
 			zap.String("http.addr", arg.Addr),
-			zap.String("metrics.addr", arg.MetricsAddr),
 		)
-
-		m, err := app.NewMetrics(lg, app.Config{
-			Addr: arg.MetricsAddr,
-			Name: "api",
-		})
-		if err != nil {
-			return errors.Wrap(err, "metrics")
-		}
-
 		oasServer, err := oas.NewServer(api.Handler{},
 			oas.WithTracerProvider(m.TracerProvider()),
 			oas.WithMeterProvider(m.MeterProvider()),
@@ -47,15 +37,20 @@ func main() {
 		if err != nil {
 			return errors.Wrap(err, "server init")
 		}
-		httpServer := http.Server{
-			Addr:    arg.Addr,
-			Handler: oasServer,
-		}
 
+		// Using OpenTelemetry instrumentation for HTTP server.
+		routeFinder := httpmiddleware.MakeRouteFinder(oasServer)
+		httpServer := http.Server{
+			ReadHeaderTimeout: time.Second,
+			Addr:              arg.Addr,
+			Handler: httpmiddleware.Wrap(oasServer,
+				httpmiddleware.InjectLogger(zctx.From(ctx)),
+				httpmiddleware.Instrument("api", routeFinder, m),
+				httpmiddleware.LogRequests(routeFinder),
+				httpmiddleware.Labeler(routeFinder),
+			),
+		}
 		g, ctx := errgroup.WithContext(ctx)
-		g.Go(func() error {
-			return m.Run(ctx)
-		})
 		g.Go(func() error {
 			// Wait until g ctx canceled, then try to shut down server.
 			<-ctx.Done()
@@ -68,7 +63,7 @@ func main() {
 		})
 		g.Go(func() error {
 			defer lg.Info("Server stopped")
-			if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			if err := httpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 				return errors.Wrap(err, "http")
 			}
 			return nil

@@ -8,6 +8,10 @@ prometheus and jaeger.
 * Generate code by [gen.go](./gen.go)
 * Metrics boilerplate in [internal/app](./internal/app)
 
+```bash
+docker compose up
+```
+
 ## Server
 
 ### Environmental variables

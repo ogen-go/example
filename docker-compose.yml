@@ -1,0 +1,68 @@
+version: "3.9"
+
+services:
+  client:
+    restart: always
+    build:
+      dockerfile: client.Dockerfile
+    environment:
+      - OTEL_LOG_LEVEL=debug
+      - OTEL_METRICS_EXPORTER=otlp
+      - OTEL_LOGS_EXPORTER=otlp
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_EXPORTER_OTLP_INSECURE=true
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://oteldb:4317
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=client
+  server:
+    restart: always
+    command: ["server"]
+    build:
+      dockerfile: server.Dockerfile
+    environment:
+      - OTEL_LOG_LEVEL=debug
+      - OTEL_METRICS_EXPORTER=otlp
+      - OTEL_LOGS_EXPORTER=otlp
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_EXPORTER_OTLP_INSECURE=true
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://oteldb:4317
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=server
+
+  # Observability stack
+  clickhouse:
+    image: clickhouse/clickhouse-server:23.10
+    volumes:
+      - ./build/clickhouse.xml:/etc/clickhouse-server/config.d/monitoring.xml
+    healthcheck:
+      test: ['CMD', 'wget', '--spider', '-q', '127.0.0.1:8123/ping']
+      interval: 1s
+      timeout: 1s
+      retries: 30
+  oteldb:
+    image: ghcr.io/go-faster/oteldb:0.5.0
+    environment:
+      - OTELDB_STORAGE=ch
+      - CH_DSN=clickhouse://clickhouse:9000
+      - OTEL_LOG_LEVEL=info
+      - OTEL_TRACES_EXPORTER=none
+      - OTEL_METRICS_EXPORTER=none
+      - OTEL_LOGS_EXPORTER=stdout
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=oteldb
+    depends_on: [clickhouse]
+  grafana:
+    image: "grafana/grafana:10.0.0"
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+      - GF_ALERTING_ENABLED=false
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_LOG_LEVEL=warn
+      - GF_INSTALL_PLUGINS=grafana-clickhouse-datasource
+    volumes:
+      - ./grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+      - ./grafana/dashboards.yml:/etc/grafana/provisioning/dashboards/default.yml
+      - ./grafana/dashboards:/etc/grafana/dashboards:ro
+    ports:
+      - "3000:3000"

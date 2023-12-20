@@ -4,6 +4,9 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/go-faster/sdk/zctx"
+	"go.uber.org/zap"
+
 	"example/internal/oas"
 )
 
@@ -15,6 +18,7 @@ type Handler struct {
 }
 
 func (h Handler) GetPetById(ctx context.Context, params oas.GetPetByIdParams) (oas.GetPetByIdRes, error) {
+	zctx.From(ctx).Info("GetPetById", zap.Any("params", params))
 	return &oas.Pet{
 		ID:     oas.NewOptInt64(params.PetId),
 		Name:   fmt.Sprintf("Pet %d", params.PetId),
