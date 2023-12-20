@@ -1,8 +1,6 @@
 # example
 
-Example for server and client with graceful shutdown and open telemetry exporters for
-prometheus and jaeger.
-
+Example for generated server and client, instrumented with OpenTelemetry.
 
 * Force `go.mod` to have ogen in [tools.go](./tools.go) 
 * Generate code by [gen.go](./gen.go)
