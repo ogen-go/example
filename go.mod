@@ -6,7 +6,7 @@ require (
 	github.com/go-faster/errors v0.7.1
 	github.com/go-faster/jx v1.1.0
 	github.com/go-faster/sdk v0.12.0
-	github.com/ogen-go/ogen v0.81.0
+	github.com/ogen-go/ogen v0.81.1
 	github.com/stretchr/testify v1.8.4
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.46.1
 	go.opentelemetry.io/otel v1.21.0
