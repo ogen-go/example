@@ -12,7 +12,7 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/metric"
-	semconv "go.opentelemetry.io/otel/semconv/v1.19.0"
+	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
 	"go.opentelemetry.io/otel/trace"
 
 	"github.com/ogen-go/ogen/conv"
@@ -110,7 +110,7 @@ func (c *Client) AddPet(ctx context.Context, request *Pet) (*Pet, error) {
 func (c *Client) sendAddPet(ctx context.Context, request *Pet) (res *Pet, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("addPet"),
-		semconv.HTTPMethodKey.String("POST"),
+		semconv.HTTPRequestMethodKey.String("POST"),
 		semconv.HTTPRouteKey.String("/pet"),
 	}
 
@@ -185,7 +185,7 @@ func (c *Client) DeletePet(ctx context.Context, params DeletePetParams) error {
 func (c *Client) sendDeletePet(ctx context.Context, params DeletePetParams) (res *DeletePetOK, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("deletePet"),
-		semconv.HTTPMethodKey.String("DELETE"),
+		semconv.HTTPRequestMethodKey.String("DELETE"),
 		semconv.HTTPRouteKey.String("/pet/{petId}"),
 	}
 
@@ -275,7 +275,7 @@ func (c *Client) GetPetById(ctx context.Context, params GetPetByIdParams) (GetPe
 func (c *Client) sendGetPetById(ctx context.Context, params GetPetByIdParams) (res GetPetByIdRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getPetById"),
-		semconv.HTTPMethodKey.String("GET"),
+		semconv.HTTPRequestMethodKey.String("GET"),
 		semconv.HTTPRouteKey.String("/pet/{petId}"),
 	}
 
@@ -365,7 +365,7 @@ func (c *Client) UpdatePet(ctx context.Context, params UpdatePetParams) error {
 func (c *Client) sendUpdatePet(ctx context.Context, params UpdatePetParams) (res *UpdatePetOK, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("updatePet"),
-		semconv.HTTPMethodKey.String("POST"),
+		semconv.HTTPRequestMethodKey.String("POST"),
 		semconv.HTTPRouteKey.String("/pet/{petId}"),
 	}
 
