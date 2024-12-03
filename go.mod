@@ -1,7 +1,6 @@
 module example
 
-go 1.22.0
-toolchain go1.22.9
+go 1.23.0
 
 require (
 	github.com/go-faster/errors v0.7.1
