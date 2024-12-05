@@ -4,7 +4,10 @@ services:
   client:
     restart: always
     build:
+      context: .
       dockerfile: client.Dockerfile
+      args:
+        BUILDKIT_INLINE_CACHE: 0
     environment:
       - OTEL_LOG_LEVEL=debug
       - OTEL_METRICS_EXPORTER=otlp
@@ -14,11 +17,15 @@ services:
       - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://oteldb:4317
       - OTEL_RESOURCE_ATTRIBUTES=service.name=client
+
   server:
     restart: always
     command: ["server"]
     build:
+      context: .
       dockerfile: server.Dockerfile
+      args:
+        BUILDKIT_INLINE_CACHE: 0
     environment:
       - OTEL_LOG_LEVEL=debug
       - OTEL_METRICS_EXPORTER=otlp
