@@ -20,7 +20,7 @@ import (
 const shutdownTimeout = 15 * time.Second
 
 func main() {
-	app.Run(func(ctx context.Context, lg *zap.Logger, m *app.Metrics) error {
+	app.Run(func(ctx context.Context, lg *zap.Logger, m *app.Telemetry) error {
 		var arg struct {
 			Addr string
 		}

@@ -16,7 +16,7 @@ import (
 	"example/internal/oas"
 )
 
-func run(ctx context.Context, lg *zap.Logger, m *app.Metrics) error {
+func run(ctx context.Context, lg *zap.Logger, m *app.Telemetry) error {
 	var arg struct {
 		BaseURL string
 		ID      int64
